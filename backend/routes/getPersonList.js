@@ -18,14 +18,7 @@ router.post('/', async (req, res) => {
   try {
     const { sn, lastUpdate } = req.body;
 
-    // 参数校验
-    if (!sn) {
-      return res.json({
-        ret: -1,
-        error_msg: 'Missing required field: sn'
-      });
-    }
-
+    // sn 参数可选，用于设备端标识，不影响查询逻辑
     let persons;
 
     if (lastUpdate) {

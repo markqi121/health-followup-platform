@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
 
     // 更新签名
     await dbAsync.run(
-      'UPDATE doctors SET signature = ?, updated_at = strftime(\'%s\', \'now\') WHERE idcard = ?',
+      'UPDATE doctors SET signature = ?, update_time = strftime(\'%s\', \'now\') WHERE idcard = ?',
       [signature, idcard]
     );
 
