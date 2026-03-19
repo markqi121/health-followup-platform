@@ -209,7 +209,7 @@
           const timeoutId = setTimeout(() => controller.abort(), 3000);
           
           try {
-            const response = await fetch('http://localhost:3000/checkup', {
+            const response = await fetch('/checkup', {
               signal: controller.signal
             });
             clearTimeout(timeoutId);
