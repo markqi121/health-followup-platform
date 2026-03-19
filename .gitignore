@@ -1,0 +1,37 @@
+# Dependencies
+backend/node_modules/
+frontend/node_modules/
+
+# Build outputs
+frontend/dist/
+
+# Database
+*.db
+*.db-journal
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Uploads (optional - keep for demo)
+# backend/uploads/
+
+# Testing
+coverage/
+.nyc_output/

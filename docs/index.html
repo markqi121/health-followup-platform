@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#667eea">
+  <title>健康指标查看</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #f5f5f5;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { font-size: 20px; font-weight: 600; }
+    .count {
+      font-size: 14px;
+      background: rgba(255,255,255,0.2);
+      padding: 4px 12px;
+      border-radius: 12px;
+    }
+    .main { padding: 16px; }
+    .cards-list { display: flex; flex-direction: column; gap: 12px; }
+    .health-card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .icon { font-size: 24px; }
+    .name { font-size: 16px; color: #333; font-weight: 500; }
+    .card-body {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .value { font-size: 32px; font-weight: 700; color: #1a1a1a; }
+    .unit { font-size: 14px; color: #999; }
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #999;
+      padding-top: 12px;
+      border-top: 1px solid #f0f0f0;
+    }
+    .loading, .error, .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+    .footer {
+      padding: 16px;
+      background: white;
+      border-top: 1px solid #eee;
+    }
+    .refresh-btn {
+      width: 100%;
+      padding: 14px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .refresh-btn:active { background: #5a6fd6; }
+    .mode-switch {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      background: white;
+      border-bottom: 1px solid #eee;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const CHECKUP_TYPES = {
+      1: { name: '无创血压', unit: 'mmHg', icon: '🩺' },
+      2: { name: '血糖', unit: 'mmol/L', icon: '🩸' },
+      4: { name: '体温', unit: '°C', icon: '🌡️' },
+      5: { name: '血氧', unit: '%', icon: '💨' },
+      6: { name: '尿常规', unit: '', icon: '🧪' },
+      7: { name: '尿酸', unit: 'μmol/L', icon: '🧪' },
+      8: { name: '胆固醇', unit: 'mmol/L', icon: '🧪' },
+      9: { name: '血脂', unit: 'mmol/L', icon: '🧪' },
+      20: { name: '糖化血红蛋白', unit: '%', icon: '🩸' },
+      22: { name: '血红蛋白', unit: 'g/L', icon: '🩸' },
+      33: { name: '血生化', unit: '', icon: '🧪' },
+    };
+
+    // Demo data for offline viewing
+    const DEMO_DATA = [
+      { id: 1, type: 1, value: JSON.stringify({systolic: 120, diastolic: 80}), time: Math.floor(Date.now()/1000) - 3600, device_sn: 'DEV001' },
+      { id: 2, type: 2, value: JSON.stringify({glucose: 5.6}), time: Math.floor(Date.now()/1000) - 7200, device_sn: 'DEV001' },
+      { id: 3, type: 4, value: JSON.stringify({temperature: 36.5}), time: Math.floor(Date.now()/1000) - 10800, device_sn: 'DEV001' },
+      { id: 4, type: 5, value: JSON.stringify({oxygen: 98}), time: Math.floor(Date.now()/1000) - 14400, device_sn: 'DEV001' },
+      { id: 5, type: 7, value: JSON.stringify({ua: 350}), time: Math.floor(Date.now()/1000) - 18000, device_sn: 'DEV001' },
+      { id: 6, type: 20, value: JSON.stringify({hba1c: 6.2}), time: Math.floor(Date.now()/1000) - 86400, device_sn: 'DEV001' },
+    ];
+
+    function formatValue(type, valueStr) {
+      try {
+        const data = JSON.parse(valueStr);
+        switch (type) {
+          case 1: return `${data.systolic || '--'}/${data.diastolic || '--'}`;
+          case 2: return data.glucose || data.value || '--';
+          case 4: return data.temperature || data.value || '--';
+          case 5: return data.oxygen || data.spo2 || data.value || '--';
+          case 6: return data.result || '查看详情';
+          default: return data.value || '--';
+        }
+      } catch { return valueStr; }
+    }
+
+    function formatTime(timestamp) {
+      if (!timestamp) return '--';
+      const date = new Date(timestamp * 1000);
+      return date.toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function HealthCard({ checkup }) {
+      const typeInfo = CHECKUP_TYPES[checkup.type] || { name: '未知指标', unit: '', icon: '📊' };
+      const value = formatValue(checkup.type, checkup.value);
+      
+      return (
+        <div className="health-card">
+          <div className="card-header">
+            <span className="icon">{typeInfo.icon}</span>
+            <span className="name">{typeInfo.name}</span>
+          </div>
+          <div className="card-body">
+            <span className="value">{value}</span>
+            <span className="unit">{typeInfo.unit}</span>
+          </div>
+          <div className="card-footer">
+            <span>{formatTime(checkup.time)}</span>
+            <span>{checkup.device_sn || ''}</span>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [checkups, setCheckups] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+      const [useDemo, setUseDemo] = useState(false);
+
+      const fetchCheckups = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          
+          if (useDemo) {
+            // Use demo data
+            setTimeout(() => {
+              setCheckups(DEMO_DATA);
+              setLoading(false);
+            }, 500);
+            return;
+          }
+          
+          // Try to fetch from real backend
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000);
+          
+          try {
+            const response = await fetch('http://localhost:3000/checkup', {
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            const data = await response.json();
+            if (data.ret === 0) {
+              setCheckups(data.data || []);
+            } else {
+              throw new Error(data.error_msg || '获取数据失败');
+            }
+          } catch (fetchError) {
+            // Fallback to demo mode
+            console.log('Backend not available, using demo data');
+            setUseDemo(true);
+            setCheckups(DEMO_DATA);
+          }
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      useEffect(() => { fetchCheckups(); }, [useDemo]);
+
+      const latestByType = checkups.reduce((acc, curr) => {
+        if (!acc[curr.type] || curr.time > acc[curr.type].time) {
+          acc[curr.type] = curr;
+        }
+        return acc;
+      }, {});
+      const latestCheckups = Object.values(latestByType).sort((a, b) => b.time - a.time);
+
+      if (loading) return <div className="app"><div className="loading">⏳ 加载中...</div></div>;
+      if (error) return <div className="app"><div className="error">❌ {error}</div></div>;
+
+      return (
+        <div className="app">
+          <header className="header">
+            <h1>🏥 健康指标</h1>
+            <span className="count">{latestCheckups.length} 项指标</span>
+          </header>
+          
+          <div className="mode-switch">
+            <button 
+              className={`mode-btn ${!useDemo ? 'active' : ''}`}
+              onClick={() => setUseDemo(false)}
+            >
+              🖥️ 后端数据
+            </button>
+            <button 
+              className={`mode-btn ${useDemo ? 'active' : ''}`}
+              onClick={() => setUseDemo(true)}
+            >
+              📱 演示数据
+            </button>
+          </div>
+          
+          <main className="main">
+            {latestCheckups.length === 0 ? (
+              <div className="empty">
+                📭 暂无检测数据
+                <br/><br/>
+                <small>请确保后端服务运行在 localhost:3000</small>
+              </div>
+            ) : (
+              <div className="cards-list">
+                {latestCheckups.map(c => <HealthCard key={c.id} checkup={c} />)}
+              </div>
+            )}
+          </main>
+          <footer className="footer">
+            <button onClick={fetchCheckups} className="refresh-btn">🔄 刷新数据</button>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
