@@ -2,10 +2,11 @@
 
 健康随访包物联网数据展示平台 - 基于随访包通讯协议 v1.9.7
 
-## 🚀 在线演示
+## 🚀 在线访问
 
-- **前端页面**: https://health-followup-demo.vercel.app (部署后更新)
-- **后端API**: https://health-followup-api.vercel.app (部署后更新)
+- **前端页面**: https://markqi121.github.io/health-followup-platform/
+- **后端API**: http://120.24.31.251:3000
+- **健康检查**: http://120.24.31.251:3000/health
 
 ## 📁 项目结构
 
