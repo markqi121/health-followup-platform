@@ -5,7 +5,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const DB_PATH = '/home/dangkang/.openclaw/workspace-tech/projects/health-followup-platform/backend/health_followup.db';
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../health_followup.db');
 
 // 创建数据库连接
 const db = new sqlite3.Database(DB_PATH, (err) => {
