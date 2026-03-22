@@ -74,13 +74,15 @@ app.use((req, res) => {
   });
 });
 
-// 启动服务
-app.listen(PORT, () => {
-  console.log(`🚀 Health Followup Platform Server`);
-  console.log(`📡 Listening on port ${PORT}`);
-  console.log(`📝 API Base URL: http://localhost:${PORT}`);
-  console.log(`💾 Database: SQLite (health_followup.db)`);
-  console.log(`\nTest with: curl http://localhost:${PORT}/health`);
-});
+// 启动服务（测试环境不启动）
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Health Followup Platform Server`);
+    console.log(`📡 Listening on port ${PORT}`);
+    console.log(`📝 API Base URL: http://localhost:${PORT}`);
+    console.log(`💾 Database: SQLite (health_followup.db)`);
+    console.log(`\nTest with: curl http://localhost:${PORT}/health`);
+  });
+}
 
 module.exports = app;

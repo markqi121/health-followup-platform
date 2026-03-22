@@ -1,16 +1,333 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#667eea" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>健康指标查看</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>健康指标查看</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 430px; margin: 0 auto; }
+    .header {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .header h1 { font-size: 20px; color: #333; margin-bottom: 10px; }
+    .filter-row { 
+      display: flex; 
+      gap: 10px; 
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .filter-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-secondary {
+      background: #95a5a6;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .card-header { display: flex; align-items: center; margin-bottom: 10px; }
+    .icon { font-size: 24px; margin-right: 10px; }
+    .name { font-size: 16px; color: #333; font-weight: 500; }
+    .value { font-size: 28px; font-weight: bold; color: #667eea; }
+    .value.abnormal { color: #e74c3c; }
+    .abnormal-badge {
+      background: #e74c3c;
+      color: white;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 8px;
+    }
+    .unit { font-size: 14px; color: #999; margin-left: 6px; }
+    .time { font-size: 12px; color: #999; margin-top: 8px; }
+    .person-info {
+      font-size: 13px;
+      color: #666;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed #eee;
+    }
+    .loading, .error, .empty { text-align: center; padding: 40px; color: white; }
+    .error { background: rgba(255,0,0,0.2); border-radius: 12px; }
+    .stats {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: #666;
+    }
+    .stat-item { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-normal { background: #667eea; }
+    .dot-abnormal { background: #e74c3c; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏥 健康指标</h1>
+      <div class="filter-row">
+        <input type="text" id="idcardInput" class="filter-input" placeholder="输入居民身份证号筛选...">
+        <button class="btn" onclick="applyFilter()">🔍 筛选</button>
+        <button class="btn btn-secondary" onclick="clearFilter()">清除</button>
+      </div>
+      <div class="stats">
+        <div class="stat-item"><span class="dot dot-normal"></span>正常</div>
+        <div class="stat-item"><span class="dot dot-abnormal"></span>异常</div>
+      </div>
+      <div id="status"></div>
+    </div>
+    <div id="content"><div class="loading">⏳ 加载中...</div></div>
+  </div>
+
+  <script>
+    const TYPES = {
+      1: { name: '无创血压', unit: 'mmHg', icon: '🩺' },
+      2: { name: '血糖', unit: 'mmol/L', icon: '🩸' },
+      4: { name: '体温', unit: '°C', icon: '🌡️' },
+      5: { name: '血氧', unit: '%', icon: '💨' },
+      6: { name: '尿常规', unit: '', icon: '🧪' },
+      7: { name: '尿酸', unit: 'μmol/L', icon: '🧪' },
+      8: { name: '胆固醇', unit: 'mmol/L', icon: '🧪' },
+      9: { name: '血脂', unit: 'mmol/L', icon: '🧪' },
+      20: { name: '糖化血红蛋白', unit: '%', icon: '🩸' },
+      22: { name: '血红蛋白', unit: 'g/L', icon: '🩸' }
+    };
+
+    // 异常值判断
+    function checkAbnormal(type, value) {
+      let obj = value;
+      if (typeof value === 'string') {
+        try { obj = JSON.parse(value); } catch { return false; }
+      }
+      if (typeof obj !== 'object' || obj === null) return false;
+
+      // 血压异常：收缩压≥140或<90，舒张压≥90或<60
+      if (type === 1) {
+        const sp = parseFloat(obj.sp);
+        const dp = parseFloat(obj.dp);
+        if (sp >= 140 || sp < 90 || dp >= 90 || dp < 60) return true;
+      }
+      // 血糖异常：空腹≥7.0或<3.9
+      if (type === 2) {
+        const glu = parseFloat(obj.glu || obj.value);
+        if (glu >= 7.0 || glu < 3.9) return true;
+      }
+      // 体温异常：≥37.3或<36
+      if (type === 4) {
+        const temp = parseFloat(obj.temperature || obj.value);
+        if (temp >= 37.3 || temp < 36) return true;
+      }
+      // 血氧异常：<95%
+      if (type === 5) {
+        const spo = parseFloat(obj.spo || obj.spo2);
+        if (spo < 95) return true;
+      }
+      // 尿酸异常：男性>420，女性>360（简化判断>360）
+      if (type === 7) {
+        const ua = parseFloat(obj.ua || obj.value);
+        if (ua > 360) return true;
+      }
+      // 胆固醇异常：≥5.2
+      if (type === 8) {
+        const chol = parseFloat(obj.value);
+        if (chol >= 5.2) return true;
+      }
+      // 血脂异常：TC≥5.2或TG≥1.7或LDL≥3.4
+      if (type === 9) {
+        const tc = parseFloat(obj.tc);
+        const tg = parseFloat(obj.tg);
+        const ldl = parseFloat(obj.ldl);
+        if (tc >= 5.2 || tg >= 1.7 || ldl >= 3.4) return true;
+      }
+      // 糖化血红蛋白异常：≥6.5%
+      if (type === 20) {
+        const hba1c = parseFloat(obj.value);
+        if (hba1c >= 6.5) return true;
+      }
+      // 血红蛋白异常：男性<120或>160，女性<110或>150（简化判断<120或>160）
+      if (type === 22) {
+        const hb = parseFloat(obj.value);
+        if (hb < 120 || hb > 160) return true;
+      }
+      return false;
+    }
+
+    function formatValue(type, value) {
+      let obj = value;
+      if (typeof value === 'string') {
+        try { obj = JSON.parse(value); } catch { return value; }
+      }
+      if (typeof obj !== 'object' || obj === null) return value;
+
+      if (type === 6) {
+        return `<div style="font-size:14px;line-height:1.8">
+          <div>pH值: ${obj.ph || '--'}</div>
+          <div>蛋白质: ${obj.protein || '--'}</div>
+          <div>葡萄糖: ${obj.glucose || '--'}</div>
+          <div>酮体: ${obj.ketone || '--'}</div>
+          ${obj.blood ? `<div>潜血: ${obj.blood}</div>` : ''}
+          ${obj.bilirubin ? `<div>胆红素: ${obj.bilirubin}</div>` : ''}
+        </div>`;
+      }
+
+      if (type === 9) {
+        return `<div style="font-size:14px;line-height:1.8">
+          <div>总胆固醇: ${obj.tc || '--'} mmol/L</div>
+          <div>甘油三酯: ${obj.tg || '--'} mmol/L</div>
+          <div>高密度脂蛋白: ${obj.hdl || '--'} mmol/L</div>
+          <div>低密度脂蛋白: ${obj.ldl || '--'} mmol/L</div>
+        </div>`;
+      }
+
+      if (type === 1) return `${obj.sp || '--'}/${obj.dp || '--'}`;
+      if (type === 2) return obj.glu || obj.value || '--';
+      if (type === 4) return obj.temperature || obj.value || '--';
+      if (type === 5) return `${obj.spo || obj.spo2 || '--'}`;
+      if (type === 7) return obj.ua || obj.value || '--';
+      if (type === 8) return obj.value || '--';
+      if (type === 20) return obj.value || '--';
+      if (type === 22) return obj.value || '--';
+
+      return JSON.stringify(obj);
+    }
+
+    let currentFilter = '';
+
+    function applyFilter() {
+      currentFilter = document.getElementById('idcardInput').value.trim();
+      loadData();
+    }
+
+    function clearFilter() {
+      currentFilter = '';
+      document.getElementById('idcardInput').value = '';
+      loadData();
+    }
+
+    // 回车键触发筛选
+    document.getElementById('idcardInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applyFilter();
+    });
+
+    async function loadData() {
+      const content = document.getElementById('content');
+      const status = document.getElementById('status');
+      content.innerHTML = '<div class="loading">⏳ 加载中...</div>';
+      status.textContent = '';
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        const url = currentFilter 
+          ? `/checkup?person=${encodeURIComponent(currentFilter)}`
+          : '/checkup';
+        
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+
+        if (result.ret !== 0) {
+          content.innerHTML = `<div class="error">❌ 服务器错误: ${result.error_msg || '未知错误'}</div>`;
+          return;
+        }
+
+        let data = result.data || [];
+        
+        // 客户端再次过滤（兼容不同后端实现）
+        if (currentFilter) {
+          data = data.filter(item => 
+            item.person_idcard?.includes(currentFilter) || 
+            item.person?.includes(currentFilter)
+          );
+        }
+
+        const normalCount = data.filter(item => !checkAbnormal(item.type, item.value)).length;
+        const abnormalCount = data.length - normalCount;
+        
+        status.innerHTML = `共 ${data.length} 条记录 · <span style="color:#667eea">正常${normalCount}</span> · <span style="color:#e74c3c">异常${abnormalCount}</span>${currentFilter ? ' · 筛选: ' + currentFilter : ''}`;
+
+        if (data.length === 0) {
+          content.innerHTML = '<div class="empty">📭 暂无检测数据</div>';
+          return;
+        }
+
+        // 按类型分组，取每组最新的一条
+        const latestByType = {};
+        data.forEach(item => {
+          const time = typeof item.time === 'number' ? item.time : new Date(item.time).getTime()/1000;
+          if (!latestByType[item.type] || time > latestByType[item.type]._time) {
+            latestByType[item.type] = {...item, _time: time};
+          }
+        });
+
+        content.innerHTML = Object.values(latestByType)
+          .sort((a,b) => b._time - a._time)
+          .map(item => {
+            const t = TYPES[item.type] || {name: '未知指标', unit: '', icon: '📊'};
+            const isAbnormal = checkAbnormal(item.type, item.value);
+            const personId = item.person_idcard || item.person || '未知';
+            
+            return `
+              <div class="card">
+                <div class="card-header">
+                  <span class="icon">${t.icon}</span>
+                  <span class="name">${t.name}</span>
+                  ${isAbnormal ? '<span class="abnormal-badge">异常</span>' : ''}
+                </div>
+                <span class="value ${isAbnormal ? 'abnormal' : ''}">${formatValue(item.type, item.value)}</span>
+                <span class="unit">${t.unit}</span>
+                <div class="time">${item.time} · 设备: ${item.device_sn}</div>
+                <div class="person-info">👤 居民: ${personId}</div>
+              </div>
+            `;
+          }).join('');
+
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          content.innerHTML = `<div class="error">⏰ 请求超时 (10秒)<br>请检查网络连接</div>`;
+        } else {
+          content.innerHTML = `<div class="error">❌ 网络错误<br>${err.message}<br><br>请尝试:<br>1. 检查网络<br>2. 点击刷新按钮</div>`;
+        }
+        status.textContent = '加载失败';
+      }
+    }
+
+    loadData();
+  </script>
+</body>
 </html>
