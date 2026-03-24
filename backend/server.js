@@ -39,7 +39,7 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: Math.floor(Date.now() / 1000),
-    version: '1.0.1'
+    version: '1.0.2'
   });
 });
 
