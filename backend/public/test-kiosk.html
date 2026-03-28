@@ -1,0 +1,3238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康小站测试平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部用户信息栏 */
+        .user-info-bar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px 24px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .user-info-bar.active {
+            display: flex;
+        }
+
+        .user-info-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .user-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .user-info-item i {
+            color: #667eea;
+        }
+
+        .user-info-item .label {
+            color: #666;
+        }
+
+        .user-info-item .value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-info-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .terminal-code {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: none;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* 主内容区域 */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 页面Section */
+        .section {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .section.active {
+            display: flex;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            padding: 32px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .card-header h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .card-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group label .required {
+            color: #dc3545;
+            margin-left: 4px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: #333;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-lg {
+            padding: 16px 32px;
+            font-size: 16px;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* Tab样式 */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            color: #666;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 模式选择卡片 */
+        .mode-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .mode-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-card:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .mode-card i {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 16px;
+        }
+
+        .mode-card h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .mode-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* 体检项目网格 */
+        .exam-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .exam-item {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .exam-item:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .exam-item.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .exam-item.active i,
+        .exam-item.active h4,
+        .exam-item.active p {
+            color: white;
+        }
+
+        .exam-item.completed {
+            border-color: #28a745;
+            background: #e8f5e9;
+        }
+
+        .exam-item i {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+
+        .exam-item h4 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .exam-item p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 数据汇总表格 */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 24px;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .summary-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .summary-table td {
+            color: #666;
+        }
+
+        .summary-table tr:hover td {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #e8f5e9;
+            color: #28a745;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        /* 报告预览 */
+        .report-preview {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+            min-height: 400px;
+        }
+
+        .report-header {
+            text-align: center;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        .report-header h3 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        /* 底部导航栏 */
+        .nav-bar {
+            background: white;
+            padding: 16px 24px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-bar.active {
+            display: flex;
+        }
+
+        .nav-progress {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 配置页面特殊样式 */
+        .config-section .card {
+            max-width: 500px;
+        }
+
+        /* 登录首页特殊样式 */
+        .login-home-section {
+            justify-content: center;
+        }
+
+        .login-home-section .card {
+            max-width: 700px;
+        }
+
+        /* 登录表单特殊样式 */
+        .login-form-section {
+            justify-content: center;
+        }
+
+        .login-form-section .card {
+            max-width: 600px;
+        }
+
+        /* 体检向导特殊样式 */
+        .exam-section .card {
+            max-width: 1000px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 16px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .card-header h2 {
+                font-size: 22px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .mode-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .exam-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .user-info-bar {
+                flex-direction: column;
+                gap: 12px;
+                padding: 12px;
+            }
+
+            .user-info-left {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-bar {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+
+        /* 图标输入框 */
+        .input-icon-wrapper {
+            position: relative;
+        }
+
+        .input-icon-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .input-icon-wrapper .form-control {
+            padding-left: 42px;
+        }
+
+        /* 单选按钮组 */
+        .radio-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        /* 提示信息 */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            color: #f57c00;
+            border: 1px solid #ffe0b2;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 工具类 */
+        .mt-24 {
+            margin-top: 24px;
+        }
+
+        .mt-8 {
+            margin-top: 8px;
+        }
+
+        .text-gray {
+            color: #666;
+        }
+
+        .flex-center {
+            display: flex;
+            justify-content: center;
+        }
+
+        .gap-12 {
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部用户信息栏 -->
+    <div class="user-info-bar" id="userInfoBar">
+        <div class="user-info-left">
+            <div class="user-info-item">
+                <i class="fas fa-user"></i>
+                <span class="label">姓名：</span>
+                <span class="value" id="userName">--</span>
+            </div>
+            <div class="user-info-item">
+                <i class="fas fa-venus-mars"></i>
+                <span class="label">性别：</span>
+                <span class="value" id="userGender">--</span>
+            </div>
+            <div class="user-info-item">
+                <i class="fas fa-id-card"></i>
+                <span class="label">身份证号：</span>
+                <span class="value" id="userIdCard">--</span>
+            </div>
+        </div>
+        <div class="user-info-right">
+            <span class="terminal-code" id="terminalCode">终端：--</span>
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> 退出
+            </button>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="main-container">
+        <!-- 配置页面 -->
+        <section class="section config-section active" id="configSection">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-cog"></i> 系统配置</h2>
+                    <p>请配置服务器地址和终端编码</p>
+                </div>
+                <form id="configForm">
+                    <div class="form-group">
+                        <label for="serverUrl">服务器地址 <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-server"></i>
+                            <input type="url" class="form-control" id="serverUrl" placeholder="https://api.example.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="terminalSn">终端编码SN <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-desktop"></i>
+                            <input type="text" class="form-control" id="terminalSn" placeholder="请输入终端编码" required>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>配置信息将保存在本地，下次启动自动加载</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">
+                        <i class="fas fa-save"></i> 保存配置
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 登录首页 -->
+        <section class="section login-home-section" id="loginHomeSection">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-heartbeat"></i> 健康小站</h2>
+                    <p>请选择登录模式开始体检</p>
+                </div>
+                <div class="mode-cards">
+                    <div class="mode-card" id="offlineMode" tabindex="0" role="button">
+                        <i class="fas fa-wifi-slash"></i>
+                        <h3>离线模式</h3>
+                        <p>无需网络连接，本地记录体检数据</p>
+                    </div>
+                    <div class="mode-card" id="onlineMode" tabindex="0" role="button">
+                        <i class="fas fa-wifi"></i>
+                        <h3>在线模式</h3>
+                        <p>连接服务器，实时同步体检数据</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 登录表单页面 -->
+        <section class="section login-form-section" id="loginFormSection">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-sign-in-alt"></i> 用户登录</h2>
+                    <p>请选择登录方式并填写信息</p>
+                </div>
+                <div class="tabs">
+                    <div class="tab active" data-tab="idCard" tabindex="0" role="button">
+                        <i class="fas fa-id-card"></i> 身份证
+                    </div>
+                    <div class="tab" data-tab="memberCard" tabindex="0" role="button">
+                        <i class="fas fa-credit-card"></i> 会员卡
+                    </div>
+                    <div class="tab" data-tab="socialCard" tabindex="0" role="button">
+                        <i class="fas fa-address-card"></i> 社保卡
+                    </div>
+                </div>
+
+                <!-- 身份证登录 -->
+                <div class="tab-content active" id="idCardTab">
+                    <form id="idCardForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="idCardNumber">身份证号 <span class="required">*</span></label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-id-card"></i>
+                                    <input type="text" class="form-control" id="idCardNumber" placeholder="请输入身份证号" maxlength="18" pattern="[0-9Xx]{18}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="idCardName">姓名 <span class="required">*</span></label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" class="form-control" id="idCardName" placeholder="请输入姓名">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>性别 <span class="required">*</span></label>
+                                <div class="radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="gender" value="男" checked>
+                                        <span>男</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="gender" value="女">
+                                        <span>女</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="idCardNation">民族</label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-flag"></i>
+                                    <input type="text" class="form-control" id="idCardNation" placeholder="请输入民族" value="汉族">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="idCardBirth">出生日期</label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-calendar"></i>
+                                    <input type="date" class="form-control" id="idCardBirth" pattern="[0-9]{8}" title="格式：YYYYMMDD">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="idCardPhone">手机号 <span class="required">*</span></label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-phone"></i>
+                                    <input type="tel" class="form-control" id="idCardPhone" placeholder="请输入手机号" maxlength="11" pattern="1[3-9][0-9]{9}">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">
+                            <i class="fas fa-arrow-right"></i> 开始体检
+                        </button>
+                        <button type="button" class="btn btn-warning btn-lg btn-block mt-8" id="randomResidentBtn">
+                            <i class="fas fa-random"></i> 随机生成居民
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 会员卡登录 -->
+                <div class="tab-content" id="memberCardTab">
+                    <form id="memberCardForm">
+                        <div class="form-group">
+                            <label for="memberCardNumber">会员卡号 <span class="required">*</span></label>
+                            <div class="input-icon-wrapper">
+                                <i class="fas fa-credit-card"></i>
+                                <input type="text" class="form-control" id="memberCardNumber" placeholder="请输入会员卡号">
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>请输入您的会员卡号，系统将自动获取您的个人信息</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">
+                            <i class="fas fa-arrow-right"></i> 开始体检
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 社保卡登录 -->
+                <div class="tab-content" id="socialCardTab">
+                    <form id="socialCardForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="socialCardNumber">社保卡内码 <span class="required">*</span></label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-address-card"></i>
+                                    <input type="text" class="form-control" id="socialCardNumber" placeholder="请输入社保卡内码">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="socialIdCard">身份证号 <span class="required">*</span></label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-id-card"></i>
+                                    <input type="text" class="form-control" id="socialIdCard" placeholder="请输入身份证号" maxlength="18" pattern="[0-9Xx]{18}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="socialName">姓名 <span class="required">*</span></label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" class="form-control" id="socialName" placeholder="请输入姓名">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>性别 <span class="required">*</span></label>
+                                <div class="radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="socialGender" value="男" checked>
+                                        <span>男</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="socialGender" value="女">
+                                        <span>女</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="socialNation">民族</label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-flag"></i>
+                                    <input type="text" class="form-control" id="socialNation" placeholder="请输入民族" value="汉族">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="socialValidFrom">有效期从</label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <input type="date" class="form-control" id="socialValidFrom">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="socialValidTo">有效期至</label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <input type="date" class="form-control" id="socialValidTo">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">
+                            <i class="fas fa-arrow-right"></i> 开始体检
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 体检向导页面 -->
+        <section class="section exam-section" id="examSection">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-stethoscope"></i> 体检向导</h2>
+                    <p>请按顺序完成以下体检项目</p>
+                </div>
+                <div class="exam-grid" id="examGrid">
+                    <div class="exam-item" data-item="height" tabindex="0" role="button">
+                        <i class="fas fa-ruler-vertical"></i>
+                        <h4>身高</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="weight" tabindex="0" role="button">
+                        <i class="fas fa-weight"></i>
+                        <h4>体重</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="bmi" tabindex="0" role="button">
+                        <i class="fas fa-calculator"></i>
+                        <h4>BMI</h4>
+                        <p>自动计算</p>
+                    </div>
+                    <div class="exam-item" data-item="bloodPressure" tabindex="0" role="button">
+                        <i class="fas fa-heartbeat"></i>
+                        <h4>血压</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="bloodSugar" tabindex="0" role="button">
+                        <i class="fas fa-tint"></i>
+                        <h4>血糖</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="bloodOxygen" tabindex="0" role="button">
+                        <i class="fas fa-lungs"></i>
+                        <h4>血氧</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="temperature" tabindex="0" role="button">
+                        <i class="fas fa-thermometer-half"></i>
+                        <h4>体温</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="pulse" tabindex="0" role="button">
+                        <i class="fas fa-heart-pulse"></i>
+                        <h4>脉搏</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="waist" tabindex="0" role="button">
+                        <i class="fas fa-ruler-horizontal"></i>
+                        <h4>腰围</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="hip" tabindex="0" role="button">
+                        <i class="fas fa-ruler"></i>
+                        <h4>臀围</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="whr" tabindex="0" role="button">
+                        <i class="fas fa-percentage"></i>
+                        <h4>腰臀比</h4>
+                        <p>自动计算</p>
+                    </div>
+                    <div class="exam-item" data-item="fat" tabindex="0" role="button">
+                        <i class="fas fa-percent"></i>
+                        <h4>体脂率</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="vision" tabindex="0" role="button">
+                        <i class="fas fa-eye"></i>
+                        <h4>视力</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="ecg" tabindex="0" role="button">
+                        <i class="fas fa-wave-square"></i>
+                        <h4>心电</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="urine" tabindex="0" role="button">
+                        <i class="fas fa-flask"></i>
+                        <h4>尿常规</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="cholesterol" tabindex="0" role="button">
+                        <i class="fas fa-vial"></i>
+                        <h4>总胆固醇</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="uricAcid" tabindex="0" role="button">
+                        <i class="fas fa-vials"></i>
+                        <h4>尿酸</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="spirometry" tabindex="0" role="button">
+                        <i class="fas fa-wind"></i>
+                        <h4>肺活量</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="alcohol" tabindex="0" role="button">
+                        <i class="fas fa-wine-bottle"></i>
+                        <h4>酒精检测</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="mental" tabindex="0" role="button">
+                        <i class="fas fa-brain"></i>
+                        <h4>心理测评</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="bone" tabindex="0" role="button">
+                        <i class="fas fa-bone"></i>
+                        <h4>骨密度</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="metabolism" tabindex="0" role="button">
+                        <i class="fas fa-fire"></i>
+                        <h4>基础代谢</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="bodyTemp" tabindex="0" role="button">
+                        <i class="fas fa-temperature-high"></i>
+                        <h4>体表温度</h4>
+                        <p>未测量</p>
+                    </div>
+                    <div class="exam-item" data-item="water" tabindex="0" role="button">
+                        <i class="fas fa-tint"></i>
+                        <h4>水分率</h4>
+                        <p>未测量</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据汇总确认页面 -->
+        <section class="section summary-section" id="summarySection">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-clipboard-check"></i> 数据汇总确认</h2>
+                    <p>请确认以下体检数据，如有问题请返回修改</p>
+                </div>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>体检项目</th>
+                            <th>测量值</th>
+                            <th>参考范围</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTableBody">
+                        <tr>
+                            <td><i class="fas fa-ruler-vertical"></i> 身高</td>
+                            <td>--</td>
+                            <td>--</td>
+                            <td><span class="status-badge status-pending">待测量</span></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-weight"></i> 体重</td>
+                            <td>--</td>
+                            <td>--</td>
+                            <td><span class="status-badge status-pending">待测量</span></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-heartbeat"></i> 血压</td>
+                            <td>--</td>
+                            <td>90-140/60-90 mmHg</td>
+                            <td><span class="status-badge status-pending">待测量</span></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-tint"></i> 血糖</td>
+                            <td>--</td>
+                            <td>3.9-6.1 mmol/L</td>
+                            <td><span class="status-badge status-pending">待测量</span></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-lungs"></i> 血氧</td>
+                            <td>--</td>
+                            <td>95-100%</td>
+                            <td><span class="status-badge status-pending">待测量</span></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-thermometer-half"></i> 体温</td>
+                            <td>--</td>
+                            <td>36.0-37.2°C</td>
+                            <td><span class="status-badge status-pending">待测量</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="alert alert-warning mt-24">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>请仔细核对以上数据，确认无误后点击"生成报告"</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 报告预览页面 -->
+        <section class="section report-section" id="reportSection">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-file-medical-alt"></i> 体检报告</h2>
+                    <p>体检报告预览与打印</p>
+                </div>
+                <div class="report-preview" id="reportContent">
+                    <div class="report-header">
+                        <h3>健康体检报告</h3>
+                        <p class="text-gray mt-8">报告编号：-- | 体检日期：--</p>
+                    </div>
+                    <div style="text-align: center; padding: 60px 20px; color: #999;">
+                        <i class="fas fa-file-medical" style="font-size: 64px; margin-bottom: 20px; display: block;"></i>
+                        <p>报告生成中，请稍候...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="nav-bar" id="navBar">
+        <div class="nav-progress">
+            <span>项目进度</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <span id="progressText">0/24</span>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" id="prevBtn">
+                <i class="fas fa-chevron-left"></i> 上一步
+            </button>
+            <button class="btn btn-warning" id="skipBtn">
+                <i class="fas fa-forward"></i> 跳过
+            </button>
+            <button class="btn btn-primary" id="nextBtn">
+                下一步 <i class="fas fa-chevron-right"></i>
+            </button>
+            <button class="btn btn-success" id="finishBtn" style="display: none;">
+                <i class="fas fa-check"></i> 完成体检
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ConfigModule 配置管理模块
+        const ConfigModule = {
+            data: {
+                serverUrl: 'http://120.24.31.251:3000',
+                kioskSn: 'TEST001',
+                defaultMode: 'offline'  // 'offline' | 'online'
+            },
+
+            init() {
+                // 从localStorage读取已保存的配置
+                const savedConfig = localStorage.getItem('kioskConfig');
+                if (savedConfig) {
+                    try {
+                        const parsed = JSON.parse(savedConfig);
+                        this.data = { ...this.data, ...parsed };
+                    } catch (e) {
+                        console.error('解析保存的配置失败:', e);
+                    }
+                }
+
+                // 填充到输入框
+                const serverUrlInput = document.getElementById('serverUrl');
+                const terminalSnInput = document.getElementById('terminalSn');
+
+                if (serverUrlInput) {
+                    serverUrlInput.value = this.data.serverUrl;
+                }
+                if (terminalSnInput) {
+                    terminalSnInput.value = this.data.kioskSn;
+                }
+            },
+
+            save() {
+                // 从输入框读取值
+                const serverUrlInput = document.getElementById('serverUrl');
+                const terminalSnInput = document.getElementById('terminalSn');
+
+                const serverUrl = serverUrlInput?.value?.trim();
+                const kioskSn = terminalSnInput?.value?.trim();
+
+                // 验证必填项
+                if (!serverUrl) {
+                    alert('请输入服务器地址');
+                    serverUrlInput?.focus();
+                    return false;
+                }
+                if (!kioskSn) {
+                    alert('请输入终端编码');
+                    terminalSnInput?.focus();
+                    return false;
+                }
+
+                // 验证 URL 格式
+                try {
+                    new URL(serverUrl);
+                } catch (e) {
+                    alert('服务器地址格式不正确，请以 http:// 或 https:// 开头');
+                    serverUrlInput?.focus();
+                    return false;
+                }
+
+                this.data.serverUrl = serverUrl;
+                this.data.kioskSn = kioskSn;
+
+                // 保存到localStorage
+                try {
+                    localStorage.setItem('kioskConfig', JSON.stringify(this.data));
+                    alert('配置保存成功！');
+                    return true;
+                } catch (e) {
+                    console.error('保存配置失败:', e);
+                    alert('保存配置失败: ' + (e.message || '请检查浏览器设置或存储空间'));
+                    return false;
+                }
+            },
+
+            get() {
+                // 返回当前配置数据
+                return this.data;
+            }
+        };
+
+        // 全局状态管理
+        const AppState = {
+            currentMode: 'offline', // 'offline' | 'online'
+            currentUser: null,
+            currentExamItem: 0,
+            examData: {},
+            skippedItems: new Set()
+        };
+
+        // LoginModule 登录模块
+        const LoginModule = {
+            currentTab: 'idCard',
+
+            // 显示登录首页（选择离线/在线模式）
+            show() {
+                this.hideAllSections();
+                document.getElementById('loginHomeSection').classList.add('active');
+            },
+
+            // 隐藏所有section的辅助方法
+            hideAllSections() {
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+            },
+
+            // 选择登录模式
+            selectMode(mode) {
+                if (mode !== 'offline' && mode !== 'online') {
+                    console.error('无效的模式:', mode);
+                    return;
+                }
+                AppState.currentMode = mode;
+                console.log(`已选择${mode === 'offline' ? '离线' : '在线'}模式`);
+
+                // 隐藏登录首页，显示登录表单
+                this.hideAllSections();
+                document.getElementById('loginFormSection').classList.add('active');
+
+                // 重置到身份证标签
+                this.switchTab('idCard');
+            },
+
+            // 切换登录方式标签（身份证/会员卡/社保卡）
+            switchTab(tab) {
+                this.currentTab = tab;
+
+                // 更新标签样式
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                    if (t.dataset.tab === tab) {
+                        t.classList.add('active');
+                    }
+                });
+
+                // 更新内容区显示
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                const tabMap = {
+                    'idCard': 'idCardTab',
+                    'memberCard': 'memberCardTab',
+                    'socialCard': 'socialCardTab'
+                };
+
+                const contentId = tabMap[tab];
+                if (contentId) {
+                    document.getElementById(contentId).classList.add('active');
+                }
+            },
+
+            // 登录主逻辑
+            async login() {
+                const userInfo = this.collectUserInfo();
+                if (!userInfo) {
+                    return;
+                }
+
+                try {
+                    if (AppState.currentMode === 'online') {
+                        // 在线模式：调用API验证
+                        const result = await this.onlineLogin(userInfo);
+                        if (result.success) {
+                            this.onLoginSuccess(result.userInfo || userInfo);
+                        } else {
+                            alert(result.message || '登录失败，请检查信息是否正确');
+                        }
+                    } else {
+                        // 离线模式：本地验证
+                        if (this.validateOffline(userInfo)) {
+                            this.onLoginSuccess(userInfo);
+                        }
+                    }
+                } catch (error) {
+                    console.error('登录错误:', error);
+                    // 在线模式失败时尝试离线降级
+                    if (AppState.currentMode === 'online') {
+                        this.offlineFallback(userInfo);
+                    } else {
+                        alert('登录失败: ' + (error.message || '未知错误'));
+                    }
+                }
+            },
+
+            // 收集用户信息
+            collectUserInfo() {
+                const tab = this.currentTab;
+                let userInfo = {
+                    loginType: tab,
+                    loginTime: new Date().toISOString()
+                };
+
+                if (tab === 'idCard') {
+                    const idCardNumber = document.getElementById('idCardNumber').value.trim();
+                    const name = document.getElementById('idCardName').value.trim();
+                    const gender = document.querySelector('input[name="gender"]:checked')?.value;
+                    const nation = document.getElementById('idCardNation').value.trim();
+                    const birthday = document.getElementById('idCardBirth').value;
+                    const phone = document.getElementById('idCardPhone').value.trim();
+
+                    if (!idCardNumber) {
+                        alert('请输入身份证号');
+                        return null;
+                    }
+                    if (!name) {
+                        alert('请输入姓名');
+                        return null;
+                    }
+                    if (!phone) {
+                        alert('请输入手机号');
+                        return null;
+                    }
+
+                    userInfo = {
+                        ...userInfo,
+                        idCard: idCardNumber,
+                        name: name,
+                        gender: gender,
+                        nation: nation || '汉族',
+                        birthday: birthday,
+                        phone: phone
+                    };
+                } else if (tab === 'memberCard') {
+                    const memberCardNumber = document.getElementById('memberCardNumber').value.trim();
+
+                    if (!memberCardNumber) {
+                        alert('请输入会员卡号');
+                        return null;
+                    }
+
+                    userInfo = {
+                        ...userInfo,
+                        memberCard: memberCardNumber
+                    };
+                } else if (tab === 'socialCard') {
+                    const socialCardNumber = document.getElementById('socialCardNumber').value.trim();
+                    const idCard = document.getElementById('socialIdCard').value.trim();
+                    const name = document.getElementById('socialName').value.trim();
+                    const gender = document.querySelector('input[name="socialGender"]:checked')?.value;
+                    const nation = document.getElementById('socialNation').value.trim();
+                    const validFrom = document.getElementById('socialValidFrom').value;
+                    const validTo = document.getElementById('socialValidTo').value;
+
+                    if (!socialCardNumber) {
+                        alert('请输入社保卡内码');
+                        return null;
+                    }
+                    if (!idCard) {
+                        alert('请输入身份证号');
+                        return null;
+                    }
+                    if (!name) {
+                        alert('请输入姓名');
+                        return null;
+                    }
+
+                    userInfo = {
+                        ...userInfo,
+                        socialCard: socialCardNumber,
+                        idCard: idCard,
+                        name: name,
+                        gender: gender,
+                        nation: nation || '汉族',
+                        validFrom: validFrom,
+                        validTo: validTo
+                    };
+                }
+
+                return userInfo;
+            },
+
+            // 离线模式本地验证
+            validateOffline(userInfo) {
+                if (userInfo.loginType === 'idCard' || userInfo.loginType === 'socialCard') {
+                    // 身份证验证：18位，前17位数字，最后一位数字或X
+                    const idCardRegex = /^\d{17}[\dXx]$/;
+                    if (!idCardRegex.test(userInfo.idCard)) {
+                        alert('身份证号格式不正确，请输入18位有效身份证号码');
+                        return false;
+                    }
+                } else if (userInfo.loginType === 'memberCard') {
+                    // 会员卡非空验证
+                    if (!userInfo.memberCard || userInfo.memberCard.length === 0) {
+                        alert('会员卡号不能为空');
+                        return false;
+                    }
+                }
+                return true;
+            },
+
+            // 在线登录接口调用
+            async onlineLogin(userInfo) {
+                const config = ConfigModule.get();
+                let url = '';
+                let body = {};
+
+                switch (userInfo.loginType) {
+                    case 'idCard':
+                        url = `${config.serverUrl}/api/login/idcard`;
+                        body = {
+                            idCard: userInfo.idCard,
+                            name: userInfo.name,
+                            gender: userInfo.gender,
+                            nation: userInfo.nation,
+                            birthday: userInfo.birthday,
+                            phone: userInfo.phone
+                        };
+                        break;
+                    case 'memberCard':
+                        url = `${config.serverUrl}/api/login/card`;
+                        body = {
+                            cardNo: userInfo.memberCard
+                        };
+                        break;
+                    case 'socialCard':
+                        url = `${config.serverUrl}/api/login/sscard`;
+                        body = {
+                            ssCardNo: userInfo.socialCard,
+                            idCard: userInfo.idCard,
+                            name: userInfo.name,
+                            gender: userInfo.gender,
+                            nation: userInfo.nation,
+                            validFrom: userInfo.validFrom,
+                            validTo: userInfo.validTo
+                        };
+                        break;
+                    default:
+                        throw new Error('未知的登录类型');
+                }
+
+                // 设置10秒超时
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Kiosk-SN': config.kioskSn
+                        },
+                        body: JSON.stringify(body),
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    // 处理非JSON响应
+                    let result;
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        result = await response.json();
+                    } else {
+                        result = { message: await response.text() };
+                    }
+
+                    if (!response.ok) {
+                        return {
+                            success: false,
+                            message: result?.message || result?.msg || `登录失败 (${response.status})`
+                        };
+                    }
+
+                    return {
+                        success: true,
+                        userInfo: result.data || result
+                    };
+                } catch (error) {
+                    clearTimeout(timeoutId);
+                    if (error.name === 'AbortError') {
+                        return { success: false, message: '请求超时，请检查网络连接' };
+                    }
+                    throw error;
+                }
+            },
+
+            // 离线模式降级
+            offlineFallback(userInfo) {
+                console.log('在线登录失败，尝试离线模式');
+                if (confirm('网络连接失败，是否切换到离线模式继续？')) {
+                    AppState.currentMode = 'offline';
+                    if (this.validateOffline(userInfo)) {
+                        this.onLoginSuccess(userInfo);
+                    }
+                }
+            },
+
+            // 登录成功回调
+            onLoginSuccess(userInfo) {
+                AppState.currentUser = userInfo;
+                console.log('登录成功:', userInfo);
+
+                // 更新用户信息栏
+                this.updateUserInfoBar(userInfo);
+
+                // 显示用户信息栏
+                document.getElementById('userInfoBar').classList.add('active');
+
+                // 进入体检模块
+                ExamModule.start();
+            },
+
+            // 更新顶部用户信息栏
+            updateUserInfoBar(userInfo) {
+                // 姓名
+                const nameEl = document.getElementById('userName');
+                if (nameEl && userInfo.name) {
+                    nameEl.textContent = userInfo.name;
+                }
+
+                // 性别
+                const genderEl = document.getElementById('userGender');
+                if (genderEl && userInfo.gender) {
+                    genderEl.textContent = userInfo.gender;
+                }
+
+                // 身份证号脱敏显示（前6位+****+后4位）
+                const idCardEl = document.getElementById('userIdCard');
+                if (idCardEl && userInfo.idCard) {
+                    const idCard = userInfo.idCard;
+                    if (idCard.length === 18) {
+                        const masked = idCard.substring(0, 6) + '****' + idCard.substring(14);
+                        idCardEl.textContent = masked;
+                    } else {
+                        idCardEl.textContent = idCard;
+                    }
+                }
+
+                // 终端编号
+                const config = ConfigModule.get();
+                const deviceSnEl = document.getElementById('terminalCode');
+                if (deviceSnEl) {
+                    deviceSnEl.textContent = `终端：${config.kioskSn}`;
+                }
+            },
+
+            // 从身份证号解析性别和出生日期
+            parseIdCard(idCard) {
+                if (!idCard || idCard.length !== 18) return null;
+
+                // 出生日期：第7-14位是YYYYMMDD
+                const year = idCard.substring(6, 10);
+                const month = idCard.substring(10, 12);
+                const day = idCard.substring(12, 14);
+                const birthday = `${year}${month}${day}`;
+
+                // 性别：第17位奇数为男，偶数为女
+                const genderCode = parseInt(idCard.substring(16, 17));
+                const gender = genderCode % 2 === 1 ? '男' : '女';
+
+                return { birthday, gender };
+            },
+
+            // 自动生成随机居民信息
+            generateRandomResident() {
+                // 随机姓名
+                const surnames = ['王', '李', '张', '刘', '陈', '杨', '黄', '赵', '周', '吴', '徐', '孙', '马', '朱', '胡', '郭', '何', '高', '林', '罗'];
+                const names = ['伟', '芳', '娜', '敏', '静', '丽', '强', '磊', '军', '洋', '勇', '艳', '杰', '涛', '明', '超', '秀英', '华', '鹏', '飞', '婷', '宇', '浩', '欣', '雨', '晨', '轩', '昊', '瑞', '嘉'];
+                const surname = surnames[Math.floor(Math.random() * surnames.length)];
+                const name = names[Math.floor(Math.random() * names.length)];
+                const fullName = surname + name;
+
+                // 随机年龄 35-80
+                const age = Math.floor(Math.random() * (80 - 35 + 1)) + 35;
+
+                // 根据年龄计算出生年份
+                const currentYear = new Date().getFullYear();
+                const birthYear = currentYear - age;
+                const birthMonth = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+                const birthDay = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');
+                const birthday = `${birthYear}${birthMonth}${birthDay}`;
+
+                // 随机性别
+                const gender = Math.random() > 0.5 ? '男' : '女';
+
+                // 生成身份证号
+                const areaCode = '440100'; // 广州市区划代码
+                const birthCode = birthday;
+                const sequenceCode = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0');
+
+                // 计算第17位（性别码）
+                const genderCode = gender === '男' ? (Math.floor(Math.random() * 5) * 2 + 1) : (Math.floor(Math.random() * 5) * 2);
+                const prefix17 = areaCode + birthCode + sequenceCode + genderCode;
+
+                // 计算校验码（第18位）
+                const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+                const checkCodes = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+                let sum = 0;
+                for (let i = 0; i < 17; i++) {
+                    sum += parseInt(prefix17[i]) * weights[i];
+                }
+                const checkCode = checkCodes[sum % 11];
+                const idCard = prefix17 + checkCode;
+
+                // 随机手机号
+                const phonePrefix = ['138', '139', '135', '136', '137', '150', '151', '152', '157', '158', '159', '182', '183', '187', '188'];
+                const phonePrefixRand = phonePrefix[Math.floor(Math.random() * phonePrefix.length)];
+                const phoneSuffix = String(Math.floor(Math.random() * 100000000)).padStart(8, '0');
+                const phone = phonePrefixRand + phoneSuffix;
+
+                return { name: fullName, idCard, gender, birthday, phone, age };
+            },
+
+            // 填充居民信息到表单
+            fillResidentInfo(info) {
+                const idCardInput = document.getElementById('idCardNumber');
+                const nameInput = document.getElementById('idCardName');
+                const phoneInput = document.getElementById('idCardPhone');
+                const nationInput = document.getElementById('idCardNation');
+                const birthInput = document.getElementById('idCardBirth');
+
+                if (idCardInput) idCardInput.value = info.idCard;
+                if (nameInput) nameInput.value = info.name;
+                if (phoneInput) phoneInput.value = info.phone;
+                if (nationInput) nationInput.value = '汉族';
+                if (birthInput) birthInput.value = info.birthday;
+
+                // 设置性别单选框
+                const genderRadios = document.querySelectorAll('input[name="gender"]');
+                genderRadios.forEach(radio => {
+                    if (radio.value === info.gender) {
+                        radio.checked = true;
+                    }
+                });
+
+                console.log('已生成随机居民:', info);
+            },
+
+            // 初始化登录模块事件绑定
+            init() {
+                // 模式选择卡片点击事件
+                const offlineMode = document.getElementById('offlineMode');
+                const onlineMode = document.getElementById('onlineMode');
+
+                if (offlineMode) {
+                    offlineMode.addEventListener('click', () => this.selectMode('offline'));
+                }
+                if (onlineMode) {
+                    onlineMode.addEventListener('click', () => this.selectMode('online'));
+                }
+
+                // Tab切换事件
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabName = tab.dataset.tab;
+                        if (tabName) {
+                            this.switchTab(tabName);
+                        }
+                    });
+                });
+
+                // 身份证表单提交
+                const idCardForm = document.getElementById('idCardForm');
+                if (idCardForm) {
+                    idCardForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.currentTab = 'idCard';
+                        this.login();
+                    });
+                }
+
+                // 会员卡表单提交
+                const memberCardForm = document.getElementById('memberCardForm');
+                if (memberCardForm) {
+                    memberCardForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.currentTab = 'memberCard';
+                        this.login();
+                    });
+                }
+
+                // 社保卡表单提交
+                const socialCardForm = document.getElementById('socialCardForm');
+                if (socialCardForm) {
+                    socialCardForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.currentTab = 'socialCard';
+                        this.login();
+                    });
+                }
+
+                // 退出登录按钮
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        // 重置状态
+                        AppState.currentUser = null;
+                        AppState.examData = {};
+                        AppState.skippedItems.clear();
+
+                        // 隐藏用户信息栏
+                        document.getElementById('userInfoBar').classList.remove('active');
+
+                        // 返回登录首页
+                        this.show();
+                    });
+                }
+
+                // 身份证号输入自动解析性别和出生日期
+                const idCardInput = document.getElementById('idCardNumber');
+                if (idCardInput) {
+                    idCardInput.addEventListener('blur', () => {
+                        const idCard = idCardInput.value.trim();
+                        if (idCard.length === 18) {
+                            const parsed = this.parseIdCard(idCard);
+                            if (parsed) {
+                                // 填充出生日期
+                                const birthInput = document.getElementById('idCardBirth');
+                                if (birthInput && !birthInput.value) {
+                                    birthInput.value = parsed.birthday;
+                                }
+                                // 填充性别
+                                const genderRadios = document.querySelectorAll('input[name="gender"]');
+                                genderRadios.forEach(radio => {
+                                    if (radio.value === parsed.gender) {
+                                        radio.checked = true;
+                                    }
+                                });
+                                console.log('身份证解析结果:', parsed);
+                            }
+                        }
+                    });
+                }
+
+                // 随机生成居民按钮
+                const randomResidentBtn = document.getElementById('randomResidentBtn');
+                if (randomResidentBtn) {
+                    randomResidentBtn.addEventListener('click', () => {
+                        const info = this.generateRandomResident();
+                        this.fillResidentInfo(info);
+                    });
+                }
+            }
+        };
+
+        // ==================== 体检项目定义 ====================
+        const ExamItems = [
+            {
+                key: 'bloodPressure',
+                name: '血压',
+                icon: 'fa-heartbeat',
+                fields: [
+                    { key: 'sys', label: '收缩压', unit: 'mmHg', type: 'int', min: 50, max: 250, normal: [90, 120] },
+                    { key: 'dia', label: '舒张压', unit: 'mmHg', type: 'int', min: 30, max: 150, normal: [60, 80] },
+                    { key: 'pulse', label: '脉搏', unit: '次/分', type: 'int', min: 30, max: 200, normal: [60, 100] }
+                ]
+            },
+            {
+                key: 'bmi',
+                name: 'BMI',
+                icon: 'fa-calculator',
+                fields: [
+                    { key: 'height', label: '身高', unit: 'cm', type: 'float', min: 50, max: 250, normal: [150, 180] },
+                    { key: 'weight', label: '体重', unit: 'kg', type: 'float', min: 20, max: 200, normal: [50, 80] },
+                    { key: 'bmi', label: 'BMI', unit: '', type: 'calculated', normal: [18.5, 24] }
+                ]
+            },
+            {
+                key: 'temperature',
+                name: '体温',
+                icon: 'fa-thermometer-half',
+                fields: [
+                    { key: 'temp', label: '体温', unit: '°C', type: 'float', min: 35, max: 42, normal: [36.0, 37.2] }
+                ]
+            },
+            {
+                key: 'oxigen',
+                name: '血氧',
+                icon: 'fa-lungs',
+                fields: [
+                    { key: 'spo2', label: '血氧饱和度', unit: '%', type: 'int', min: 70, max: 100, normal: [95, 100] },
+                    { key: 'bpm', label: '脉率', unit: '次/分', type: 'int', min: 30, max: 200, normal: [60, 100] },
+                    { key: 'pi', label: '灌注指数', unit: '%', type: 'float', min: 0, max: 20, normal: [0.5, 10] }
+                ]
+            },
+            {
+                key: 'glu',
+                name: '血糖',
+                icon: 'fa-tint',
+                fields: [
+                    { key: 'glu', label: '血糖值', unit: 'mmol/L', type: 'float', min: 1, max: 30, normal: [3.9, 6.1] },
+                    { key: 'type', label: '测量类型', unit: '', type: 'select', options: [{value: 0, label: '餐前'}, {value: 1, label: '餐后'}, {value: 2, label: '随机'}] }
+                ]
+            },
+            {
+                key: 'chol',
+                name: '总胆固醇',
+                icon: 'fa-vial',
+                fields: [
+                    { key: 'chol', label: '总胆固醇', unit: 'mmol/L', type: 'float', min: 1, max: 15, normal: [2.8, 5.7] }
+                ]
+            },
+            {
+                key: 'ua',
+                name: '尿酸',
+                icon: 'fa-vials',
+                fields: [
+                    { key: 'ua', label: '尿酸', unit: 'umol/L', type: 'int', min: 50, max: 1000, normal: [155, 428] }
+                ]
+            },
+            {
+                key: 'fat',
+                name: '体成分',
+                icon: 'fa-percent',
+                fields: [
+                    { key: 'fatRate', label: '脂肪率', unit: '%', type: 'float', min: 1, max: 60, normal: [15, 25] },
+                    { key: 'water', label: '水分率', unit: '%', type: 'float', min: 30, max: 70, normal: [50, 65] },
+                    { key: 'muscle', label: '肌肉量', unit: 'kg', type: 'float', min: 10, max: 100, normal: [30, 50] },
+                    { key: 'visceral', label: '内脏脂肪', unit: '', type: 'int', min: 1, max: 30, normal: [1, 9] }
+                ]
+            },
+            {
+                key: 'whr',
+                name: '腰臀比',
+                icon: 'fa-ruler-horizontal',
+                fields: [
+                    { key: 'waist', label: '腰围', unit: 'cm', type: 'float', min: 40, max: 150, normal: [60, 90] },
+                    { key: 'hip', label: '臀围', unit: 'cm', type: 'float', min: 50, max: 150, normal: [80, 110] },
+                    { key: 'whr', label: '腰臀比', unit: '', type: 'calculated', normal: [0.7, 0.9] }
+                ]
+            },
+            {
+                key: 'trig',
+                name: '血脂',
+                icon: 'fa-flask',
+                fields: [
+                    { key: 'hdlchol', label: '高密度脂蛋白', unit: 'mmol/L', type: 'float', min: 0.5, max: 5, normal: [1.0, 1.8] },
+                    { key: 'chol', label: '总胆固醇', unit: 'mmol/L', type: 'float', min: 1, max: 15, normal: [2.8, 5.7] },
+                    { key: 'trig', label: '甘油三酯', unit: 'mmol/L', type: 'float', min: 0.1, max: 15, normal: [0.4, 1.7] },
+                    { key: 'ldl', label: '低密度脂蛋白', unit: 'mmol/L', type: 'float', min: 0.5, max: 10, normal: [1.5, 3.4] }
+                ]
+            },
+            {
+                key: 'ecg',
+                name: '心电',
+                icon: 'fa-wave-square',
+                fields: [
+                    { key: 'ecgData', label: '心电数据', unit: '', type: 'textarea' },
+                    { key: 'ecg', label: '心电结果', unit: '', type: 'textarea' }
+                ]
+            },
+            {
+                key: 'breath',
+                name: '呼吸',
+                icon: 'fa-wind',
+                fields: [
+                    { key: 'pef', label: '峰值流速', unit: 'L/min', type: 'float', min: 50, max: 1000, normal: [300, 600] },
+                    { key: 'fev1', label: '第一秒用力呼气量', unit: 'L', type: 'float', min: 0.5, max: 10, normal: [2, 5] },
+                    { key: 'fvc', label: '用力肺活量', unit: 'L', type: 'float', min: 1, max: 10, normal: [3, 6] },
+                    { key: 'pefRate', label: 'PEF百分比', unit: '%', type: 'int', min: 10, max: 150, normal: [80, 120] },
+                    { key: 'fev1Rate', label: 'FEV1百分比', unit: '%', type: 'int', min: 10, max: 150, normal: [80, 120] },
+                    { key: 'fvcRate', label: 'FVC百分比', unit: '%', type: 'int', min: 10, max: 150, normal: [80, 120] },
+                    { key: 'pefLevel', label: 'PEF等级', unit: '', type: 'int', min: 1, max: 4, normal: [1, 2] },
+                    { key: 'fev1Level', label: 'FEV1等级', unit: '', type: 'int', min: 1, max: 4, normal: [1, 2] },
+                    { key: 'copdLevel', label: 'COPD等级', unit: '', type: 'int', min: 0, max: 4, normal: [0, 1] }
+                ]
+            },
+            {
+                key: 'bmd',
+                name: '骨密度',
+                icon: 'fa-bone',
+                fields: [
+                    { key: 'age', label: '年龄', unit: '', type: 'string' },
+                    { key: 'sos', label: '超声声速', unit: 'm/s', type: 'float', min: 1000, max: 2000, normal: [1400, 1600] },
+                    { key: 'bqi', label: '骨质量指数', unit: '', type: 'float', min: 20, max: 150, normal: [60, 100] },
+                    { key: 'rrf', label: '相对骨折风险', unit: '', type: 'float', min: 0.1, max: 10, normal: [0.5, 2] },
+                    { key: 'eoa', label: '预期骨质疏松年龄', unit: '岁', type: 'int', min: 30, max: 100, normal: [60, 80] },
+                    { key: 'tscore', label: 'T值', unit: '', type: 'float', min: -5, max: 5, normal: [-1, 1] },
+                    { key: 'zscore', label: 'Z值', unit: '', type: 'float', min: -5, max: 5, normal: [-1, 1] },
+                    { key: 'bAge', label: '骨龄', unit: '岁', type: 'int', min: 10, max: 100, normal: [30, 60] },
+                    { key: 'peerRatio', label: '同龄人比例', unit: '%', type: 'int', min: 0, max: 200, normal: [80, 120] },
+                    { key: 'side', label: '测量部位', unit: '', type: 'string' },
+                    { key: 'position', label: '测量位置', unit: '', type: 'string' },
+                    { key: 'adultRatio', label: '成人比例', unit: '%', type: 'int', min: 0, max: 200, normal: [80, 120] }
+                ]
+            },
+            {
+                key: 'hb',
+                name: '血红蛋白',
+                icon: 'fa-tint',
+                fields: [
+                    { key: 'hb', label: '血红蛋白', unit: 'g/L', type: 'int', min: 50, max: 200, normal: [115, 160] }
+                ]
+            },
+            {
+                key: 'ur',
+                name: '尿常规',
+                icon: 'fa-flask',
+                fields: [
+                    { key: 'leu', label: '白细胞', unit: '', type: 'string' },
+                    { key: 'ubg', label: '尿胆原', unit: '', type: 'string' },
+                    { key: 'pro', label: '蛋白质', unit: '', type: 'string' },
+                    { key: 'nit', label: '亚硝酸盐', unit: '', type: 'string' },
+                    { key: 'ph', label: 'pH值', unit: '', type: 'float', min: 4.5, max: 9.0, normal: [5.0, 7.0] },
+                    { key: 'vc', label: '维生素C', unit: '', type: 'string' },
+                    { key: 'sg', label: '比重', unit: '', type: 'float', min: 1.000, max: 1.030, normal: [1.010, 1.025] },
+                    { key: 'bld', label: '隐血', unit: '', type: 'string' },
+                    { key: 'glu', label: '葡萄糖', unit: '', type: 'string' },
+                    { key: 'bil', label: '胆红素', unit: '', type: 'string' },
+                    { key: 'ket', label: '酮体', unit: '', type: 'string' }
+                ]
+            },
+            {
+                key: 'ecgOneLead',
+                name: '单导心电',
+                icon: 'fa-heart-pulse',
+                fields: [
+                    { key: 'hr', label: '心率', unit: '次/分', type: 'int', min: 30, max: 200, normal: [60, 100] },
+                    { key: 'result', label: '结果', unit: '', type: 'string' }
+                ]
+            },
+            {
+                key: 'tcmBodyConst',
+                name: '中医体质',
+                icon: 'fa-yin-yang',
+                fields: [
+                    { key: 'summary', label: '体质判定', unit: '', type: 'string' },
+                    { key: 'pinghe', label: '平和质', unit: '分', type: 'int', min: 0, max: 100, normal: [60, 100] },
+                    { key: 'qixu', label: '气虚质', unit: '分', type: 'int', min: 0, max: 100, normal: [0, 40] },
+                    { key: 'yangxu', label: '阳虚质', unit: '分', type: 'int', min: 0, max: 100, normal: [0, 40] },
+                    { key: 'yinxu', label: '阴虚质', unit: '分', type: 'int', min: 0, max: 100, normal: [0, 40] },
+                    { key: 'tanshi', label: '痰湿质', unit: '分', type: 'int', min: 0, max: 100, normal: [0, 40] },
+                    { key: 'shire', label: '湿热质', unit: '分', type: 'int', min: 0, max: 100, normal: [0, 40] },
+                    { key: 'xueyu', label: '血瘀质', unit: '分', type: 'int', min: 0, max: 100, normal: [0, 40] },
+                    { key: 'qiyu', label: '气郁质', unit: '分', type: 'int', min: 0, max: 100, normal: [0, 40] },
+                    { key: 'tebing', label: '特禀质', unit: '分', type: 'int', min: 0, max: 100, normal: [0, 40] }
+                ]
+            },
+            {
+                key: 'HGM702_FAT',
+                name: 'BMI合计项',
+                icon: 'fa-weight-scale',
+                fields: [
+                    { key: 'height', label: '身高', unit: 'cm', type: 'string' },
+                    { key: 'weight', label: '体重', unit: 'kg', type: 'string' },
+                    { key: 'bmi', label: 'BMI', unit: '', type: 'string' },
+                    { key: 'fatRate', label: '脂肪率', unit: '%', type: 'string' },
+                    { key: 'fatMass', label: '脂肪量', unit: 'kg', type: 'string' },
+                    { key: 'waterRate', label: '水分率', unit: '%', type: 'string' },
+                    { key: 'waterMass', label: '水分量', unit: 'kg', type: 'string' },
+                    { key: 'muscleRate', label: '肌肉率', unit: '%', type: 'string' },
+                    { key: 'muscleMass', label: '肌肉量', unit: 'kg', type: 'string' },
+                    { key: 'boneMass', label: '骨量', unit: 'kg', type: 'string' },
+                    { key: 'proteinRate', label: '蛋白质率', unit: '%', type: 'string' },
+                    { key: 'proteinMass', label: '蛋白质量', unit: 'kg', type: 'string' },
+                    { key: 'visceralFat', label: '内脏脂肪', unit: '', type: 'string' },
+                    { key: 'bmr', label: '基础代谢', unit: 'kcal', type: 'string' },
+                    { key: 'bodyAge', label: '身体年龄', unit: '岁', type: 'string' },
+                    { key: 'idealWeight', label: '理想体重', unit: 'kg', type: 'string' },
+                    { key: 'obesityLevel', label: '肥胖等级', unit: '', type: 'string' },
+                    { key: 'bodyType', label: '体型', unit: '', type: 'string' },
+                    { key: 'bodyScore', label: '身体得分', unit: '分', type: 'string' },
+                    { key: 'leftArmFat', label: '左臂脂肪率', unit: '%', type: 'string' },
+                    { key: 'rightArmFat', label: '右臂脂肪率', unit: '%', type: 'string' },
+                    { key: 'trunkFat', label: '躯干脂肪率', unit: '%', type: 'string' },
+                    { key: 'leftLegFat', label: '左腿脂肪率', unit: '%', type: 'string' },
+                    { key: 'rightLegFat', label: '右腿脂肪率', unit: '%', type: 'string' },
+                    { key: 'leftArmMuscle', label: '左臂肌肉量', unit: 'kg', type: 'string' },
+                    { key: 'rightArmMuscle', label: '右臂肌肉量', unit: 'kg', type: 'string' }
+                ]
+            },
+            {
+                key: 'visionCheckList',
+                name: '视力',
+                icon: 'fa-eye',
+                fields: [
+                    { key: 'LeftVision', label: '左眼视力', unit: '', type: 'float', min: 0, max: 2.0, normal: [0.8, 1.5] },
+                    { key: 'RightVision', label: '右眼视力', unit: '', type: 'float', min: 0, max: 2.0, normal: [0.8, 1.5] },
+                    { key: 'LeftCorrectionVision', label: '左眼矫正视力', unit: '', type: 'float', min: 0, max: 2.0, normal: [0.8, 1.5] },
+                    { key: 'RightCorrectionVision', label: '右眼矫正视力', unit: '', type: 'float', min: 0, max: 2.0, normal: [0.8, 1.5] }
+                ]
+            },
+            {
+                key: 'hba1c',
+                name: '糖化血红蛋白',
+                icon: 'fa-droplet',
+                fields: [
+                    { key: 'ngsp', label: 'NGSP', unit: '%', type: 'float', min: 3, max: 20, normal: [4, 6] }
+                ]
+            },
+            {
+                key: 'ecgH600',
+                name: '心电H600',
+                icon: 'fa-heart-pulse',
+                fields: [
+                    { key: 'hr', label: '心率', unit: '次/分', type: 'int', min: 30, max: 200, normal: [60, 100] },
+                    { key: 'result', label: '结果', unit: '', type: 'string' },
+                    { key: 'ecgData', label: '心电数据', unit: '', type: 'textarea' }
+                ]
+            },
+            {
+                key: 'psychological',
+                name: '心理评估',
+                icon: 'fa-brain',
+                isGroup: true,
+                subItems: [
+                    {
+                        key: 'gds',
+                        name: '老年抑郁量表',
+                        fields: [
+                            { key: 'score', label: '得分', unit: '分', type: 'int', min: 0, max: 30, normal: [0, 10] },
+                            { key: 'result', label: '结果', unit: '', type: 'string' }
+                        ]
+                    },
+                    {
+                        key: 'sas',
+                        name: '焦虑自评量表',
+                        fields: [
+                            { key: 'score', label: '得分', unit: '分', type: 'int', min: 20, max: 80, normal: [20, 50] },
+                            { key: 'result', label: '结果', unit: '', type: 'string' }
+                        ]
+                    },
+                    {
+                        key: 'sds',
+                        name: '抑郁自评量表',
+                        fields: [
+                            { key: 'score', label: '得分', unit: '分', type: 'int', min: 20, max: 80, normal: [20, 50] },
+                            { key: 'result', label: '结果', unit: '', type: 'string' }
+                        ]
+                    },
+                    {
+                        key: 'psqi',
+                        name: '匹兹堡睡眠质量',
+                        fields: [
+                            { key: 'score', label: '得分', unit: '分', type: 'int', min: 0, max: 21, normal: [0, 5] },
+                            { key: 'result', label: '结果', unit: '', type: 'string' }
+                        ]
+                    }
+                ]
+            },
+            {
+                key: 'alcohol',
+                name: '酒精测试',
+                icon: 'fa-wine-bottle',
+                fields: [
+                    { key: 'result', label: '结果', unit: '', type: 'float', min: 0, max: 500, normal: [0, 20] },
+                    { key: 'unit', label: '单位', unit: '', type: 'string' }
+                ]
+            },
+            {
+                key: 'facePer',
+                name: '情绪测试',
+                icon: 'fa-face-smile',
+                fields: [
+                    { key: 'sad', label: '悲伤', unit: '%', type: 'float', min: 0, max: 100, normal: [0, 20] },
+                    { key: 'happy', label: '快乐', unit: '%', type: 'float', min: 0, max: 100, normal: [60, 100] },
+                    { key: 'feary', label: '恐惧', unit: '%', type: 'float', min: 0, max: 100, normal: [0, 20] },
+                    { key: 'amazedy', label: '惊讶', unit: '%', type: 'float', min: 0, max: 100, normal: [0, 30] },
+                    { key: 'contempty', label: '轻蔑', unit: '%', type: 'float', min: 0, max: 100, normal: [0, 20] },
+                    { key: 'neutralityy', label: '中性', unit: '%', type: 'float', min: 0, max: 100, normal: [20, 60] },
+                    { key: 'angery', label: '愤怒', unit: '%', type: 'float', min: 0, max: 100, normal: [0, 20] },
+                    { key: 'detesty', label: '厌恶', unit: '%', type: 'float', min: 0, max: 100, normal: [0, 20] }
+                ]
+            }
+        ];
+
+        // ==================== 体检模块 ====================
+        const ExamModule = {
+            currentIndex: 0,
+            examData: {},
+            skippedItems: new Set(),
+
+            // 开始体检
+            start() {
+                this.currentIndex = 0;
+                this.examData = {};
+                this.skippedItems.clear();
+                this.loadProgress();
+                this.show();
+                this.updateProgress();
+                this.updateNavButtons();
+            },
+
+            // 显示体检页面
+            show() {
+                // 隐藏所有section
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                // 显示体检section
+                document.getElementById('examSection').classList.add('active');
+                // 显示导航栏
+                document.getElementById('navBar').classList.add('active');
+                // 渲染当前项目
+                this.renderCurrentItem();
+            },
+
+            // 渲染当前测量项目
+            renderCurrentItem() {
+                const item = ExamItems[this.currentIndex];
+                if (!item) return;
+
+                // 更新项目高亮
+                document.querySelectorAll('.exam-item').forEach((el, idx) => {
+                    el.classList.remove('active', 'completed');
+                    if (idx === this.currentIndex) {
+                        el.classList.add('active');
+                    } else if (this.examData[item.key] || this.skippedItems.has(item.key)) {
+                        el.classList.add('completed');
+                    }
+                });
+
+                // 渲染输入表单
+                const examGrid = document.getElementById('examGrid');
+                if (item.isGroup && item.subItems) {
+                    // 渲染分组项目
+                    let html = `<div class="exam-item-detail" style="grid-column: 1 / -1; background: white; padding: 20px; border-radius: 12px; margin-bottom: 16px;">
+                        <h3 style="margin-bottom: 16px; color: #333;"><i class="fas ${item.icon}"></i> ${item.name}</h3>
+                        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                            <button type="button" class="btn btn-success" onclick="ExamModule.generateNormal()">
+                                <i class="fas fa-check-circle"></i> 生成正常值
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="ExamModule.generateAbnormal()">
+                                <i class="fas fa-exclamation-circle"></i> 生成异常值
+                            </button>
+                        </div>`;
+                    item.subItems.forEach(subItem => {
+                        html += `<div style="margin-bottom: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px;">
+                            <h4 style="margin-bottom: 12px; color: #667eea;">${subItem.name}</h4>
+                            <div class="form-row">`;
+                        subItem.fields.forEach(field => {
+                            html += this.renderField(subItem.key, field);
+                        });
+                        html += `</div></div>`;
+                    });
+                    html += `</div>`;
+                    examGrid.innerHTML = html;
+                } else {
+                    // 渲染普通项目
+                    let html = `<div class="exam-item-detail" style="grid-column: 1 / -1; background: white; padding: 20px; border-radius: 12px; margin-bottom: 16px;">
+                        <h3 style="margin-bottom: 16px; color: #333;"><i class="fas ${item.icon}"></i> ${item.name}</h3>
+                        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                            <button type="button" class="btn btn-success" onclick="ExamModule.generateNormal()">
+                                <i class="fas fa-check-circle"></i> 生成正常值
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="ExamModule.generateAbnormal()">
+                                <i class="fas fa-exclamation-circle"></i> 生成异常值
+                            </button>
+                        </div>
+                        <div class="form-row">`;
+                    item.fields.forEach(field => {
+                        html += this.renderField(item.key, field);
+                    });
+                    html += `</div></div>`;
+                    examGrid.innerHTML = html;
+                }
+
+                // 加载已保存的数据
+                if (this.examData[item.key]) {
+                    this.loadItemData(item.key, this.examData[item.key]);
+                }
+            },
+
+            // 渲染单个字段输入
+            renderField(itemKey, field) {
+                const fieldId = `${itemKey}_${field.key}`;
+                let inputHtml = '';
+
+                if (field.type === 'select') {
+                    inputHtml = `<select class="form-control" id="${fieldId}" data-field="${field.key}">
+                        ${field.options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}
+                    </select>`;
+                } else if (field.type === 'textarea') {
+                    inputHtml = `<textarea class="form-control" id="${fieldId}" data-field="${field.key}" rows="3" placeholder="请输入${field.label}"></textarea>`;
+                } else if (field.type === 'calculated') {
+                    inputHtml = `<input type="text" class="form-control" id="${fieldId}" data-field="${field.key}" readonly placeholder="自动计算" style="background: #f0f0f0;">`;
+                } else {
+                    const inputType = field.type === 'int' || field.type === 'float' ? 'number' : 'text';
+                    const step = field.type === 'float' ? '0.1' : '1';
+                    inputHtml = `<input type="${inputType}" class="form-control" id="${fieldId}" data-field="${field.key}"
+                        ${field.min !== undefined ? `min="${field.min}"` : ''}
+                        ${field.max !== undefined ? `max="${field.max}"` : ''}
+                        step="${step}"
+                        placeholder="请输入${field.label}${field.unit ? '(' + field.unit + ')' : ''}">`;
+                }
+
+                return `<div class="form-group">
+                    <label for="${fieldId}">${field.label}${field.unit ? ' (' + field.unit + ')' : ''}</label>
+                    ${inputHtml}
+                </div>`;
+            },
+
+            // 加载已保存的数据
+            loadItemData(itemKey, data) {
+                if (!data) return;
+                Object.keys(data).forEach(key => {
+                    const fieldId = `${itemKey}_${key}`;
+                    const input = document.getElementById(fieldId);
+                    if (input) {
+                        input.value = data[key];
+                    }
+                });
+            },
+
+            // 收集当前项目数据
+            collectCurrentItem() {
+                const item = ExamItems[this.currentIndex];
+                if (!item) return null;
+
+                const data = {};
+
+                if (item.isGroup && item.subItems) {
+                    // 收集分组项目数据
+                    item.subItems.forEach(subItem => {
+                        data[subItem.key] = {};
+                        subItem.fields.forEach(field => {
+                            const fieldId = `${subItem.key}_${field.key}`;
+                            const input = document.getElementById(fieldId);
+                            if (input) {
+                                data[subItem.key][field.key] = field.type === 'int' ? parseInt(input.value) || 0 :
+                                    field.type === 'float' ? parseFloat(input.value) || 0 :
+                                    input.value;
+                            }
+                        });
+                    });
+                } else {
+                    // 收集普通项目数据
+                    item.fields.forEach(field => {
+                        if (field.type === 'calculated') return; // 跳过计算字段
+                        const fieldId = `${item.key}_${field.key}`;
+                        const input = document.getElementById(fieldId);
+                        if (input) {
+                            data[field.key] = field.type === 'int' ? parseInt(input.value) || 0 :
+                                field.type === 'float' ? parseFloat(input.value) || 0 :
+                                input.value;
+                        }
+                    });
+
+                    // 计算派生字段
+                    this.calculateDerivedFields(item, data);
+                }
+
+                return data;
+            },
+
+            // 计算派生字段（如BMI、腰臀比）
+            calculateDerivedFields(item, data) {
+                if (item.key === 'bmi' && data.height && data.weight) {
+                    // BMI = weight / (height/100)^2
+                    const heightInM = data.height / 100;
+                    data.bmi = parseFloat((data.weight / (heightInM * heightInM)).toFixed(2));
+                    // 更新显示
+                    const bmiInput = document.getElementById('bmi_bmi');
+                    if (bmiInput) bmiInput.value = data.bmi;
+                }
+                if (item.key === 'whr' && data.waist && data.hip) {
+                    // 腰臀比 = 腰围 / 臀围
+                    data.whr = parseFloat((data.waist / data.hip).toFixed(2));
+                    // 更新显示
+                    const whrInput = document.getElementById('whr_whr');
+                    if (whrInput) whrInput.value = data.whr;
+                }
+            },
+
+            // 下一步
+            next() {
+                // 保存当前数据
+                const item = ExamItems[this.currentIndex];
+                if (item && !this.skippedItems.has(item.key)) {
+                    const data = this.collectCurrentItem();
+                    if (data) {
+                        this.examData[item.key] = data;
+                    }
+                }
+
+                if (this.currentIndex < ExamItems.length - 1) {
+                    this.currentIndex++;
+                    this.renderCurrentItem();
+                    this.updateProgress();
+                    this.updateNavButtons();
+                    this.saveProgress();
+                } else {
+                    this.finish();
+                }
+            },
+
+            // 上一步
+            prev() {
+                // 保存当前数据
+                const item = ExamItems[this.currentIndex];
+                if (item && !this.skippedItems.has(item.key)) {
+                    const data = this.collectCurrentItem();
+                    if (data) {
+                        this.examData[item.key] = data;
+                    }
+                }
+
+                if (this.currentIndex > 0) {
+                    this.currentIndex--;
+                    this.renderCurrentItem();
+                    this.updateProgress();
+                    this.updateNavButtons();
+                    this.saveProgress();
+                }
+            },
+
+            // 跳过
+            skip() {
+                const item = ExamItems[this.currentIndex];
+                if (item) {
+                    this.skippedItems.add(item.key);
+                    // 删除已保存的数据
+                    delete this.examData[item.key];
+                }
+
+                if (this.currentIndex < ExamItems.length - 1) {
+                    this.currentIndex++;
+                    this.renderCurrentItem();
+                    this.updateProgress();
+                    this.updateNavButtons();
+                    this.saveProgress();
+                } else {
+                    this.finish();
+                }
+            },
+
+            // 完成体检
+            finish() {
+                // 保存最后一个项目的数据
+                const item = ExamItems[this.currentIndex];
+                if (item && !this.skippedItems.has(item.key)) {
+                    const data = this.collectCurrentItem();
+                    if (data) {
+                        this.examData[item.key] = data;
+                    }
+                }
+
+                this.saveProgress();
+                console.log('体检完成，数据:', this.examData);
+
+                // 隐藏导航栏
+                document.getElementById('navBar').classList.remove('active');
+
+                // 显示汇总页面
+                SummaryModule.show();
+            },
+
+
+            // 更新导航按钮状态
+            updateNavButtons() {
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                const finishBtn = document.getElementById('finishBtn');
+
+                if (prevBtn) {
+                    prevBtn.disabled = this.currentIndex === 0;
+                    prevBtn.style.opacity = this.currentIndex === 0 ? '0.5' : '1';
+                }
+
+                if (nextBtn && finishBtn) {
+                    if (this.currentIndex === ExamItems.length - 1) {
+                        nextBtn.style.display = 'none';
+                        finishBtn.style.display = 'inline-flex';
+                    } else {
+                        nextBtn.style.display = 'inline-flex';
+                        finishBtn.style.display = 'none';
+                    }
+                }
+            },
+
+            // 更新进度显示
+            updateProgress() {
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+
+                const progress = ((this.currentIndex + 1) / ExamItems.length) * 100;
+                const completed = Object.keys(this.examData).length;
+
+                if (progressFill) {
+                    progressFill.style.width = progress + '%';
+                }
+                if (progressText) {
+                    progressText.textContent = `${this.currentIndex + 1}/${ExamItems.length} (已完成: ${completed})`;
+                }
+            },
+
+            // 生成正常值
+            generateNormal() {
+                const item = ExamItems[this.currentIndex];
+                if (!item) return;
+                const data = this.generateValues(item, 'normal');
+                this.loadItemData(item.key, data);
+            },
+
+            // 生成异常值
+            generateAbnormal() {
+                const item = ExamItems[this.currentIndex];
+                if (!item) return;
+                const data = this.generateValues(item, 'abnormal');
+                this.loadItemData(item.key, data);
+            },
+
+            // 生成值的核心逻辑
+            generateValues(item, type) {
+                const data = {};
+
+                if (item.isGroup && item.subItems) {
+                    item.subItems.forEach(subItem => {
+                        data[subItem.key] = {};
+                        subItem.fields.forEach(field => {
+                            if (field.type === 'int' || field.type === 'float') {
+                                let value;
+                                if (type === 'normal' && field.normal) {
+                                    value = this.randomInRange(field.normal[0], field.normal[1], field.type === 'int');
+                                } else {
+                                    // 生成异常值（在正常范围外）
+                                    if (Math.random() > 0.5) {
+                                        value = field.normal ? field.normal[1] + this.randomFloat(1, 10) : this.randomFloat(field.min || 0, field.max || 100);
+                                    } else {
+                                        value = field.normal ? field.normal[0] - this.randomFloat(1, 10) : this.randomFloat(field.min || 0, field.max || 100);
+                                    }
+                                }
+                                data[subItem.key][field.key] = field.type === 'int' ? Math.round(value) : parseFloat(value.toFixed(2));
+                            } else if (field.type === 'string') {
+                                data[subItem.key][field.key] = '正常';
+                            }
+                        });
+                    });
+                } else {
+                    item.fields.forEach(field => {
+                        if (field.type === 'calculated') return;
+                        if (field.type === 'int' || field.type === 'float') {
+                            let value;
+                            if (type === 'normal' && field.normal) {
+                                value = this.randomInRange(field.normal[0], field.normal[1], field.type === 'int');
+                            } else {
+                                if (Math.random() > 0.5) {
+                                    value = field.normal ? field.normal[1] + this.randomFloat(1, 10) : this.randomFloat(field.min || 0, field.max || 100);
+                                } else {
+                                    value = field.normal ? field.normal[0] - this.randomFloat(1, 10) : this.randomFloat(field.min || 0, field.max || 100);
+                                }
+                            }
+                            data[field.key] = field.type === 'int' ? Math.round(value) : parseFloat(value.toFixed(2));
+                        } else if (field.type === 'string') {
+                            data[field.key] = '正常';
+                        } else if (field.type === 'select') {
+                            data[field.key] = field.options ? field.options[0].value : 0;
+                        }
+                    });
+
+                    // 计算派生字段
+                    this.calculateDerivedFields(item, data);
+                }
+
+                return data;
+            },
+
+            // 随机整数
+            randomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            },
+
+            // 随机浮点数
+            randomFloat(min, max) {
+                return Math.random() * (max - min) + min;
+            },
+
+            // 在范围内随机
+            randomInRange(min, max, isInt = false) {
+                const value = Math.random() * (max - min) + min;
+                return isInt ? Math.round(value) : value;
+            },
+
+            // 保存进度到localStorage
+            saveProgress() {
+                const progress = {
+                    currentIndex: this.currentIndex,
+                    examData: this.examData,
+                    skippedItems: Array.from(this.skippedItems),
+                    userId: AppState.currentUser?.idCard || 'anonymous',
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('examProgress', JSON.stringify(progress));
+            },
+
+            // 从localStorage加载进度
+            loadProgress() {
+                const saved = localStorage.getItem('examProgress');
+                if (saved) {
+                    try {
+                        const progress = JSON.parse(saved);
+                        const currentUserId = AppState.currentUser?.idCard || 'anonymous';
+                        // 只加载同一用户的进度
+                        if (progress.userId === currentUserId) {
+                            this.currentIndex = progress.currentIndex || 0;
+                            this.examData = progress.examData || {};
+                            this.skippedItems = new Set(progress.skippedItems || []);
+                        }
+                    } catch (e) {
+                        console.error('加载进度失败:', e);
+                    }
+                }
+            },
+
+            // 清除进度
+            clearProgress() {
+                localStorage.removeItem('examProgress');
+                this.currentIndex = 0;
+                this.examData = {};
+                this.skippedItems.clear();
+            },
+
+            // 初始化事件绑定
+            init() {
+                // 上一步按钮
+                const prevBtn = document.getElementById('prevBtn');
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', () => this.prev());
+                }
+
+                // 下一步按钮
+                const nextBtn = document.getElementById('nextBtn');
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => this.next());
+                }
+
+                // 跳过按钮
+                const skipBtn = document.getElementById('skipBtn');
+                if (skipBtn) {
+                    skipBtn.addEventListener('click', () => this.skip());
+                }
+
+                // 完成按钮
+                const finishBtn = document.getElementById('finishBtn');
+                if (finishBtn) {
+                    finishBtn.addEventListener('click', () => this.finish());
+                }
+
+                // 体检项目点击事件
+                document.querySelectorAll('.exam-item').forEach((el, idx) => {
+                    el.addEventListener('click', () => {
+                        // 保存当前数据
+                        const currentItem = ExamItems[this.currentIndex];
+                        if (currentItem && !this.skippedItems.has(currentItem.key)) {
+                            const data = this.collectCurrentItem();
+                            if (data) {
+                                this.examData[currentItem.key] = data;
+                            }
+                        }
+                        // 跳转到点击的项目
+                        this.currentIndex = idx;
+                        this.renderCurrentItem();
+                        this.updateProgress();
+                        this.updateNavButtons();
+                    });
+                });
+            }
+        };
+
+        // ==================== SummaryModule 数据汇总模块 ====================
+        const SummaryModule = {
+            // 显示汇总页面
+            show() {
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById('summarySection').classList.add('active');
+                this.renderSummary();
+            },
+
+            // 渲染汇总表格
+            renderSummary() {
+                const tbody = document.getElementById('summaryTableBody');
+                let html = '';
+
+                ExamItems.forEach(item => {
+                    if (ExamModule.skippedItems.has(item.key)) return;
+                    const data = ExamModule.examData[item.key];
+                    if (data) {
+                        const displayValue = this.formatItemValue(item, data);
+                        const normalRange = this.getNormalRange(item);
+                        html += `<tr>
+                            <td><i class="fas ${item.icon}"></i> ${item.name}</td>
+                            <td>${displayValue}</td>
+                            <td>${normalRange}</td>
+                            <td><span class="status-badge status-success">已测量</span></td>
+                        </tr>`;
+                    }
+                });
+
+                if (html === '') {
+                    html = '<tr><td colspan="4" style="text-align: center;">暂无测量数据</td></tr>';
+                }
+
+                // 添加操作按钮行
+                html += `<tr>
+                    <td colspan="4" style="text-align: center; padding: 24px;">
+                        <button class="btn btn-secondary" onclick="SummaryModule.editItem()">
+                            <i class="fas fa-edit"></i> 返回修改
+                        </button>
+                        <button class="btn btn-primary" onclick="UploadModule.upload()" style="margin-left: 12px;">
+                            <i class="fas fa-cloud-upload-alt"></i> 上传数据
+                        </button>
+                    </td>
+                </tr>`;
+
+                tbody.innerHTML = html;
+            },
+
+            // 格式化项目值
+            formatItemValue(item, data) {
+                if (item.isGroup) {
+                    return '已完成评估';
+                }
+                const values = [];
+                item.fields.forEach(field => {
+                    if (data[field.key] !== undefined && field.type !== 'calculated') {
+                        values.push(`${field.label}: ${data[field.key]}${field.unit || ''}`);
+                    }
+                });
+                return values.join(', ') || '--';
+            },
+
+            // 获取正常范围
+            getNormalRange(item) {
+                if (item.isGroup) return '--';
+                const ranges = [];
+                item.fields.forEach(field => {
+                    if (field.normal && field.type !== 'calculated') {
+                        ranges.push(`${field.label}: ${field.normal[0]}-${field.normal[1]}${field.unit || ''}`);
+                    }
+                });
+                return ranges.join(', ') || '--';
+            },
+
+            // 编辑单项（返回体检向导）
+            editItem() {
+                ExamModule.show();
+            }
+        };
+
+        // ==================== UploadModule 数据上传模块 ====================
+        const UploadModule = {
+            // 上传数据
+            async upload() {
+                const payload = this.buildPayload();
+                console.log('准备上传数据:', payload);
+
+                // 显示上传中提示
+                const uploadBtn = document.querySelector('button[onclick="UploadModule.upload()"]');
+                if (uploadBtn) {
+                    uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 上传中...';
+                    uploadBtn.disabled = true;
+                }
+
+                try {
+                    const config = ConfigModule.get();
+                    const url = `${config.serverUrl}/api/exam/upload`;
+
+                    // 使用AbortController设置30秒超时
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Kiosk-SN': config.kioskSn
+                        },
+                        body: JSON.stringify(payload),
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    let result;
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        result = await response.json();
+                    } else {
+                        result = { message: await response.text() };
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(result?.message || result?.msg || `上传失败 (${response.status})`);
+                    }
+
+                    console.log('上传成功:', result);
+                    ReportModule.show(result, payload);
+
+                } catch (error) {
+                    console.error('上传错误:', error);
+                    if (error.name === 'AbortError') {
+                        alert('上传超时，请检查网络连接后重试');
+                    } else {
+                        alert('上传失败: ' + (error.message || '未知错误'));
+                    }
+
+                    // 恢复按钮状态
+                    if (uploadBtn) {
+                        uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> 上传数据';
+                        uploadBtn.disabled = false;
+                    }
+                }
+            },
+
+            // 组装上报数据结构
+            buildPayload() {
+                const config = ConfigModule.get();
+                const user = AppState.currentUser || {};
+                const examData = ExamModule.examData || {};
+
+                // 基础payload结构
+                const payload = {
+                    date: this.formatDateTime(new Date()),
+                    personInfo: {
+                        name: user.name || '',
+                        gender: user.gender || '',
+                        birthday: user.birthday || '',
+                        idNumber: user.idCard || '',
+                        nation: user.nation || '',
+                        memberCard: user.memberCard || '',
+                        ssn: user.socialCard || '',
+                        phone: user.phone || ''
+                    },
+                    kioskInfo: {
+                        sn: config.kioskSn
+                    }
+                };
+
+                // 添加测量数据（跳过的项目不包含该字段）
+                // 血压
+                if (examData.bloodPressure) {
+                    payload.bloodPressure = {
+                        sys: examData.bloodPressure.sys,
+                        dia: examData.bloodPressure.dia,
+                        pulse: examData.bloodPressure.pulse
+                    };
+                }
+
+                // BMI
+                if (examData.bmi) {
+                    payload.bmi = {
+                        height: examData.bmi.height,
+                        weight: examData.bmi.weight,
+                        bmi: examData.bmi.bmi
+                    };
+                }
+
+                // 体温
+                if (examData.temperature) {
+                    payload.temperature = {
+                        temp: examData.temperature.temp
+                    };
+                }
+
+                // 血氧 (oxigen)
+                if (examData.oxigen) {
+                    payload.oxigen = {
+                        spo2: examData.oxigen.spo2,
+                        bpm: examData.oxigen.bpm,
+                        pi: examData.oxigen.pi
+                    };
+                }
+
+                // 血糖 (glu)
+                if (examData.glu) {
+                    payload.glu = {
+                        glu: examData.glu.glu,
+                        type: examData.glu.type
+                    };
+                }
+
+                // 总胆固醇 (chol)
+                if (examData.chol) {
+                    payload.chol = {
+                        chol: examData.chol.chol
+                    };
+                }
+
+                // 尿酸 (ua)
+                if (examData.ua) {
+                    payload.ua = {
+                        ua: examData.ua.ua
+                    };
+                }
+
+                // 体脂 (fat)
+                if (examData.fat) {
+                    payload.fat = {
+                        fatRate: examData.fat.fatRate,
+                        water: examData.fat.water,
+                        muscle: examData.fat.muscle,
+                        visceral: examData.fat.visceral
+                    };
+                }
+
+                // 腰臀比 (whr)
+                if (examData.whr) {
+                    payload.whr = {
+                        waist: examData.whr.waist,
+                        hip: examData.whr.hip,
+                        whr: examData.whr.whr
+                    };
+                }
+
+                // 血脂 (trig)
+                if (examData.trig) {
+                    payload.trig = {
+                        hdlchol: examData.trig.hdlchol,
+                        chol: examData.trig.chol,
+                        trig: examData.trig.trig,
+                        ldl: examData.trig.ldl
+                    };
+                }
+
+                // 心电 (ecg)
+                if (examData.ecg) {
+                    payload.ecg = {
+                        ecgData: examData.ecg.ecgData,
+                        ecg: examData.ecg.ecg
+                    };
+                }
+
+                // 呼吸 (breath)
+                if (examData.breath) {
+                    payload.breath = {
+                        pef: examData.breath.pef,
+                        fev1: examData.breath.fev1,
+                        fvc: examData.breath.fvc,
+                        pefRate: examData.breath.pefRate,
+                        fev1Rate: examData.breath.fev1Rate,
+                        fvcRate: examData.breath.fvcRate,
+                        pefLevel: examData.breath.pefLevel,
+                        fev1Level: examData.breath.fev1Level,
+                        copdLevel: examData.breath.copdLevel
+                    };
+                }
+
+                // 骨密度 (bmd)
+                if (examData.bmd) {
+                    payload.bmd = {
+                        age: examData.bmd.age,
+                        sos: examData.bmd.sos,
+                        bqi: examData.bmd.bqi,
+                        rrf: examData.bmd.rrf,
+                        eoa: examData.bmd.eoa,
+                        tscore: examData.bmd.tscore,
+                        zscore: examData.bmd.zscore,
+                        bAge: examData.bmd.bAge,
+                        peerRatio: examData.bmd.peerRatio,
+                        side: examData.bmd.side,
+                        position: examData.bmd.position,
+                        adultRatio: examData.bmd.adultRatio
+                    };
+                }
+
+                // 血红蛋白 (hb)
+                if (examData.hb) {
+                    payload.hb = {
+                        hb: examData.hb.hb
+                    };
+                }
+
+                // 尿常规 (ur)
+                if (examData.ur) {
+                    payload.ur = {
+                        leu: examData.ur.leu,
+                        ubg: examData.ur.ubg,
+                        pro: examData.ur.pro,
+                        nit: examData.ur.nit,
+                        ph: examData.ur.ph,
+                        vc: examData.ur.vc,
+                        sg: examData.ur.sg,
+                        bld: examData.ur.bld,
+                        glu: examData.ur.glu,
+                        bil: examData.ur.bil,
+                        ket: examData.ur.ket
+                    };
+                }
+
+                // 单导心电 (ecgOneLead)
+                if (examData.ecgOneLead) {
+                    payload.ecgOneLead = {
+                        hr: examData.ecgOneLead.hr,
+                        result: examData.ecgOneLead.result
+                    };
+                }
+
+                // 中医体质 (tcmBodyConst)
+                if (examData.tcmBodyConst) {
+                    payload.tcmBodyConst = {
+                        summary: examData.tcmBodyConst.summary,
+                        pinghe: examData.tcmBodyConst.pinghe,
+                        qixu: examData.tcmBodyConst.qixu,
+                        yangxu: examData.tcmBodyConst.yangxu,
+                        yinxu: examData.tcmBodyConst.yinxu,
+                        tanshi: examData.tcmBodyConst.tanshi,
+                        shire: examData.tcmBodyConst.shire,
+                        xueyu: examData.tcmBodyConst.xueyu,
+                        qiyu: examData.tcmBodyConst.qiyu,
+                        tebing: examData.tcmBodyConst.tebing
+                    };
+                }
+
+                // BMI合计项 (HGM702_FAT)
+                if (examData.HGM702_FAT) {
+                    payload.HGM702_FAT = {
+                        height: examData.HGM702_FAT.height,
+                        weight: examData.HGM702_FAT.weight,
+                        bmi: examData.HGM702_FAT.bmi,
+                        fatRate: examData.HGM702_FAT.fatRate,
+                        fatMass: examData.HGM702_FAT.fatMass,
+                        waterRate: examData.HGM702_FAT.waterRate,
+                        waterMass: examData.HGM702_FAT.waterMass,
+                        muscleRate: examData.HGM702_FAT.muscleRate,
+                        muscleMass: examData.HGM702_FAT.muscleMass,
+                        boneMass: examData.HGM702_FAT.boneMass,
+                        proteinRate: examData.HGM702_FAT.proteinRate,
+                        proteinMass: examData.HGM702_FAT.proteinMass,
+                        visceralFat: examData.HGM702_FAT.visceralFat,
+                        bmr: examData.HGM702_FAT.bmr,
+                        bodyAge: examData.HGM702_FAT.bodyAge,
+                        idealWeight: examData.HGM702_FAT.idealWeight,
+                        obesityLevel: examData.HGM702_FAT.obesityLevel,
+                        bodyType: examData.HGM702_FAT.bodyType,
+                        bodyScore: examData.HGM702_FAT.bodyScore,
+                        leftArmFat: examData.HGM702_FAT.leftArmFat,
+                        rightArmFat: examData.HGM702_FAT.rightArmFat,
+                        trunkFat: examData.HGM702_FAT.trunkFat,
+                        leftLegFat: examData.HGM702_FAT.leftLegFat,
+                        rightLegFat: examData.HGM702_FAT.rightLegFat,
+                        leftArmMuscle: examData.HGM702_FAT.leftArmMuscle,
+                        rightArmMuscle: examData.HGM702_FAT.rightArmMuscle
+                    };
+                }
+
+                // 视力 (visionCheckList)
+                if (examData.visionCheckList) {
+                    payload.visionCheckList = {
+                        LeftVision: examData.visionCheckList.LeftVision,
+                        RightVision: examData.visionCheckList.RightVision,
+                        LeftCorrectionVision: examData.visionCheckList.LeftCorrectionVision,
+                        RightCorrectionVision: examData.visionCheckList.RightCorrectionVision
+                    };
+                }
+
+                // 糖化血红蛋白 (hba1c)
+                if (examData.hba1c) {
+                    payload.hba1c = {
+                        ngsp: examData.hba1c.ngsp
+                    };
+                }
+
+                // 心电H600
+                if (examData.ecgH600) {
+                    payload.ecgH600 = {
+                        hr: examData.ecgH600.hr,
+                        result: examData.ecgH600.result,
+                        ecgData: examData.ecgH600.ecgData
+                    };
+                }
+
+                // 心理评估 (psychological)
+                if (examData.psychological) {
+                    payload.psychological = examData.psychological;
+                }
+
+                // 酒精测试 (alcohol)
+                if (examData.alcohol) {
+                    payload.alcohol = {
+                        result: examData.alcohol.result,
+                        unit: examData.alcohol.unit
+                    };
+                }
+
+                // 情绪测试 (facePer)
+                if (examData.facePer) {
+                    payload.facePer = {
+                        sad: examData.facePer.sad,
+                        happy: examData.facePer.happy,
+                        feary: examData.facePer.feary,
+                        amazedy: examData.facePer.amazedy,
+                        contempty: examData.facePer.contempty,
+                        neutralityy: examData.facePer.neutralityy,
+                        angery: examData.facePer.angery,
+                        detesty: examData.facePer.detesty
+                    };
+                }
+
+                return payload;
+            },
+
+            // 格式化日期时间
+            formatDateTime(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const seconds = String(date.getSeconds()).padStart(2, '0');
+                return `${year}${month}${day}${hours}${minutes}${seconds}`;
+            }
+        };
+
+        // ==================== ReportModule 报告预览模块 ====================
+        const ReportModule = {
+            // 显示报告
+            show(result, payload) {
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById('reportSection').classList.add('active');
+                this.renderReport(payload, result);
+            },
+
+            // 渲染报告内容
+            renderReport(payload, result) {
+                const reportContent = document.getElementById('reportContent');
+                if (!reportContent) return;
+
+                const user = payload.personInfo || {};
+                const reportDate = payload.date ?
+                    `${payload.date.substring(0, 4)}-${payload.date.substring(4, 6)}-${payload.date.substring(6, 8)} ${payload.date.substring(8, 10)}:${payload.date.substring(10, 12)}:${payload.date.substring(12, 14)}` :
+                    new Date().toLocaleString('zh-CN');
+
+                let html = `
+                    <div class="report-header">
+                        <h3>健康体检报告</h3>
+                        <p class="text-gray mt-8">姓名：${user.name || '--'} | 性别：${user.gender || '--'} | 体检日期：${reportDate}</p>
+                    </div>
+                    <div style="padding: 20px;">
+                        <h4 style="color: #667eea; margin-bottom: 16px; border-bottom: 2px solid #667eea; padding-bottom: 8px;">测量结果汇总</h4>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f8f9fa;">
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e0e0e0;">项目</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e0e0e0;">测量值</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e0e0e0;">状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                // 遍历所有测量数据
+                const itemNames = {
+                    bloodPressure: '血压',
+                    bmi: 'BMI',
+                    temperature: '体温',
+                    oxigen: '血氧',
+                    glu: '血糖',
+                    chol: '总胆固醇',
+                    ua: '尿酸',
+                    fat: '体脂率',
+                    whr: '腰臀比',
+                    trig: '血脂',
+                    ecg: '心电',
+                    breath: '呼吸',
+                    bmd: '骨密度',
+                    hb: '血红蛋白',
+                    ur: '尿常规',
+                    ecgOneLead: '单导心电',
+                    tcmBodyConst: '中医体质',
+                    HGM702_FAT: 'BMI合计项',
+                    visionCheckList: '视力',
+                    hba1c: '糖化血红蛋白',
+                    ecgH600: '心电H600',
+                    psychological: '心理评估',
+                    alcohol: '酒精测试',
+                    facePer: '情绪测试'
+                };
+
+                Object.keys(payload).forEach(key => {
+                    if (key === 'date' || key === 'personInfo' || key === 'kioskInfo') return;
+
+                    const itemName = itemNames[key] || key;
+                    const itemData = payload[key];
+                    let valueStr = '';
+
+                    if (typeof itemData === 'object' && itemData !== null) {
+                        const values = [];
+                        Object.keys(itemData).forEach(fieldKey => {
+                            if (itemData[fieldKey] !== undefined && itemData[fieldKey] !== '') {
+                                values.push(`${fieldKey}: ${itemData[fieldKey]}`);
+                            }
+                        });
+                        valueStr = values.join(', ');
+                    } else {
+                        valueStr = String(itemData);
+                    }
+
+                    html += `
+                        <tr style="border-bottom: 1px solid #e0e0e0;">
+                            <td style="padding: 12px;">${itemName}</td>
+                            <td style="padding: 12px; font-family: monospace;">${valueStr || '--'}</td>
+                            <td style="padding: 12px;"><span class="status-badge status-success">已上传</span></td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                            </tbody>
+                        </table>
+                        <div style="margin-top: 24px; text-align: center; padding: 20px; background: #e8f5e9; border-radius: 8px;">
+                            <i class="fas fa-check-circle" style="color: #28a745; font-size: 24px;"></i>
+                            <p style="margin-top: 8px; color: #28a745; font-weight: 500;">体检数据已成功上传</p>
+                        </div>
+                        <div style="text-align: center; margin-top: 24px;">
+                            <button class="btn btn-success btn-lg" onclick="ReportModule.newExam()">
+                                <i class="fas fa-plus-circle"></i> 开始新体检
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                reportContent.innerHTML = html;
+            },
+
+            // 开始新体检
+            newExam() {
+                // 重置所有状态
+                ExamModule.clearProgress();
+                ExamModule.examData = {};
+                ExamModule.skippedItems.clear();
+                ExamModule.currentIndex = 0;
+
+                // 返回登录首页
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById('loginHomeSection').classList.add('active');
+
+                // 隐藏用户信息栏
+                document.getElementById('userInfoBar').classList.remove('active');
+
+                // 重置用户状态
+                AppState.currentUser = null;
+                AppState.examData = {};
+                AppState.skippedItems.clear();
+            }
+        };
+
+        // 页面加载时初始化
+        window.onload = () => {
+            ConfigModule.init();
+            LoginModule.init();
+            ExamModule.init();
+        };
+
+        // 配置表单提交事件
+        document.getElementById('configForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (ConfigModule.save()) {
+                // 配置保存成功后显示登录首页
+                LoginModule.show();
+            }
+        });
+    </script>
+</body>
+</html>
